@@ -1,0 +1,33 @@
+.wrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.cards {
+    color: #545454;
+    display: grid;
+    grid-template-columns: 35vw 35vw;
+    margin-left: 50px;
+    row-gap: 20px;
+}
+
+button {
+    margin-bottom: 0;
+}
+
+.sidebar_btn {
+    margin-top: 0;
+}
+
+.message_input {
+    background-color: #FFFFFF;
+    margin-left: 50px;
+    width: 60vw;
+    margin-bottom: 50px;
+}

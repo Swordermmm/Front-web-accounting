@@ -1,0 +1,42 @@
+.container {
+    margin-top: 110px;
+}
+
+.discussion_card {
+    border: solid #545454 1px;
+    border-radius: 10px;
+    font-size: 24px;
+    width: 60vw;
+    padding-left: 30px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.reaction_container {
+    display: flex;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.reaction_container label{
+    color: #000000;
+    font-size: 24px;
+}
+
+.reaction {
+    font-size: 16px;
+    transform: translate(0, 6px);
+}
+
+.reaction img {
+    width: 20px;
+    margin: 0 10px;
+}
+
+.comment_btn {
+    min-width: 220px;
+    width: 10vw;
+    max-height: 41px;
+    font-size: 16px;
+    margin: 0;
+}

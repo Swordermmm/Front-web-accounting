@@ -1,0 +1,33 @@
+:root {
+  font-family: "Mont";
+  line-height: 1.5;
+  font-weight: 700;
+
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #FFFFFF;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --primary-text-color: #FFFFFF;
+
+  --primary-btn-bg-color: #FF0000;
+  --primary-btn-hover-focus-color: #FFB9B9;
+  --primary-btn-active-color: #3A0000;
+
+  --secondary-text-color: #545454;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  max-width: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}

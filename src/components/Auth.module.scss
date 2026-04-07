@@ -1,0 +1,50 @@
+.switch_btn {
+    color: #FF0000;
+    background-color: none;
+    margin-top: 10px;
+}
+
+button {
+    width: 340px;
+    height: 66px;
+    margin: 0 auto;
+    margin-top: 40px;
+    
+}
+
+.auth_btn{
+    margin-bottom: 62px;
+}
+
+header {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+label {
+    color: #000000;
+    text-align: left;
+    font-size: 20px;
+    margin-left: 20px;
+    margin-top: 10px;
+}
+
+.title {
+    color: #000000;
+    text-align: center;
+    font-size: 32px;
+    margin-top: 10px;
+}
+
+.secondary_title {
+    color: #000000;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+.wrapper{
+    height: 100%;
+    display: grid;
+    place-items: center;
+}

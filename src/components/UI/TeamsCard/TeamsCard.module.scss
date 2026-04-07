@@ -1,0 +1,31 @@
+.container {
+    font-family: "Mont";
+    font-weight: 700;
+}
+
+.team_card {
+    border: solid #545454 1px;
+    border-radius: 10px;
+    font-size: 24px;
+    width: 60vw;
+    padding-left: 30px;
+    padding-top: 20px;
+    padding-bottom: 40px;
+}
+
+.team_card label{
+    font-size: 16px;
+}
+
+.team_card div {
+    color: #000000;
+    font-size: 24px;
+}
+
+.comment_btn {
+    min-width: 220px;
+    width: 10vw;
+    max-height: 41px;
+    font-size: 16px;
+    margin: 0;
+}

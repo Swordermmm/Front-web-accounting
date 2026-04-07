@@ -1,0 +1,36 @@
+.wrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+.cards {
+    color: #545454;
+    margin-left: 50px;
+}
+
+label {
+    margin: 0 ;
+}
+
+button {
+    margin-bottom: 0;
+}
+
+.sidebar_btn {
+    margin-top: 0;
+}
+
+.sidebar_btn_2 {
+    font-size: 20px;
+    max-width: 300px;
+    max-height: 50px;
+}
+
+.main {
+    margin-top: 80px;
+}
+
+.title {
+    color: #000000;
+    font-size: 28px;
+}
