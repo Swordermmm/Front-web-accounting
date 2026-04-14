@@ -34,3 +34,30 @@ button {
     color: #000000;
     font-size: 28px;
 }
+
+.modal-title {
+    font-size: 36px;
+    text-align: center;
+    padding-bottom: 70px;
+}
+
+.modal-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 16px;
+}
+
+.modal-group div {
+    width: 82%;
+}
+
+.add-stack-button {
+    color: #FF0000
+}
+
+a {
+      height: 66px;
+    display: flex;
+    align-items: center;
+}

@@ -5,3 +5,4 @@ export * from "./Sidebar";
 export * from "./Checkbox";
 export * from "./DiscussionCard";
 export * from "./TeamsCard";
+export * from "./Modal";

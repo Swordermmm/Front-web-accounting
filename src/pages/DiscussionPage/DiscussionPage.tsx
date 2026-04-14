@@ -8,6 +8,7 @@ import list from "../../assets/list_icon.svg";
 
 const DiscussionPage: FC = () => {
   const navigate = useNavigate();
+
   return (
     <div className={styles.wrapper}>
       <Sidebar>
