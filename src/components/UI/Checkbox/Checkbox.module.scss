@@ -28,6 +28,12 @@
   height: 10px;
 }
 
+.custom_checkbox {
+    font-size: 16px;
+    color: #545454;
+}
+
+
 .custom_checkbox .check:checked ~ .checkbox:after {
   display: block;
 }

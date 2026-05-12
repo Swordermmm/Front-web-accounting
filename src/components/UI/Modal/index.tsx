@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 interface ModalType {
   children?: ReactNode;
   isOpen?: boolean;
+  isProject?: boolean;
   isCrossNeeded: boolean;
   toggle: () => void;
 }
@@ -16,7 +17,11 @@ export function Modal(props: ModalType) {
         props.isOpen ? styles["display-block"] : styles["display-none"]
       }`}
     >
-      <div className={styles["modal-main"]}>
+      <div
+        className={`${styles["modal-main"]} ${
+          props.isProject ? styles["modal-project"] : styles[""]
+        }`}
+      >
         {props.isCrossNeeded && (
           <>
             <button className={styles["close-button"]} onClick={props.toggle}>

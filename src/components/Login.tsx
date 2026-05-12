@@ -2,12 +2,14 @@ import { useState } from "react";
 import type { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import type { NavigateFunction } from "react-router-dom";
+import { Formik, Field, Form, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
-import { Button } from "./UI/Button";
-import { Input } from "./UI/Input";
+import { login } from "../apis/auth.api";
+import { Button } from "../components/UI";
 
-import styles from "./Auth.module.scss";
 import logo from "../assets/alpha-logo.png";
+import styles from "./Auth.module.scss";
 
 type Props = {};
 
@@ -24,6 +26,21 @@ const Login: FC<Props> = () => {
     password: "",
   };
 
+  const validationSchema = Yup.object().shape({
+    email: Yup.string().required("Данное поле не заполнено!"),
+    password: Yup.string().required("Данное поле не заполнено!"),
+  });
+
+  const handleLogin = (formValue: { email: string; password: string }) => {
+    const { email, password } = formValue;
+
+    setMessage("");
+
+    login(email, password)
+      .then(() => {})
+      .catch();
+  };
+
   return (
     <div className={styles.wrapper}>
       <div className="container login-container">
@@ -33,37 +50,49 @@ const Login: FC<Props> = () => {
         <div className="col-md-12">
           <div className="card card-container">
             <label className={styles.title}>Вход</label>
-            <form>
-              <div className="form-group">
-                <label className={styles.secondary_title} htmlFor="email">
-                  Почта
-                </label>
-                <Input
-                  name="email"
-                  type="text"
-                  className=""
-                  placeholder="Введите почту"
-                />
-              </div>
+            <Formik
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              onSubmit={handleLogin}
+            >
+              <Form>
+                <div className="form-group">
+                  <label htmlFor="email" className="form-label">
+                    Почта
+                  </label>
+                  <Field
+                    name="email"
+                    type="text"
+                    className={styles.form_control}
+                  />
+                </div>
 
-              <div className="form-group">
-                <label className={styles.secondary_title} htmlFor="password">
-                  Пароль
-                </label>
-                <Input
-                  name="password"
-                  type="password"
-                  className=""
-                  placeholder="Введите пароль"
-                />
-              </div>
+                <div className="form-group">
+                  <label htmlFor="password" className="form-label">
+                    Пароль
+                  </label>
+                  <Field
+                    name="password"
+                    type="password"
+                    className={styles.form_control}
+                  />
+                </div>
 
-              <div className="form-group">
-                <Button type="submit" className={styles.auth_btn}>
-                  Войти
-                </Button>
-              </div>
-            </form>
+                <div className="form-group">
+                  <Button type="submit" className={styles.auth_btn}>
+                    Войти
+                  </Button>
+                </div>
+
+                {message && (
+                  <div className="form-group">
+                    <div className="alert alert-danger" role="alert">
+                      {message}
+                    </div>
+                  </div>
+                )}
+              </Form>
+            </Formik>
           </div>
         </div>
       </div>

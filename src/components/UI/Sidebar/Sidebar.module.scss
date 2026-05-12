@@ -1,16 +1,16 @@
 .sidebar {
     height: 100vh;
     width: 26vw;
-    overflow: hidden;
-    max-width: 440px;
+    position: fixed;
+    max-width: 300px;
     background-color: #D6D5D5;
-    color: #000000
+    color: #000000;
+    overflow: none;
+    
 }
 
-label {
-    font-size: 20px;
-    color: #545454;
-    margin-left: 50px;
+.closed {
+    display: none;
 }
 
 img {
@@ -19,18 +19,16 @@ img {
     transform: translate(0px, 4px)
 }
 
-.logo {
-    position: absolute;
-    top: 0;
-    left: 0;
-    margin-left: 0;
-}
-
 nav {
-    margin-top: 150px;
+    margin-top: 0px;
 }
 
 ul {
-    margin-top: 8vw;
-    padding-left: 0;
+    margin-left: 0px;
+    padding-left: 30px;
 }
+
+ul label {
+    padding: 10px 0 0 0;
+}
+

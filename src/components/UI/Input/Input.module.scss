@@ -1,15 +1,38 @@
 .input {
   display: block;
   background-color: #ECEAEA;
-  font-weight: normal;
+  font-weight: bold;
   font-size: 20px;
-  padding: 23px 0;
+  padding: 15px 0;
   line-height: 1.25;
   text-align: left;
   padding-left: 16px;
   border-radius: 10px;
   border: black solid 2px;
   width: 560px;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  
+  
+  &-primary {
+    color: black;
+  }
+}
+
+textarea {
+  display: block;
+  font-family: "Mont";
+  background-color: #ECEAEA;
+  font-weight: normal;
+  font-size: 20px;
+  padding: 15px 0;
+  line-height: 1.25;
+  text-align: left;
+  padding-left: 16px;
+  border-radius: 10px;
+  border: black solid 2px;
+  width: 500px;
   outline: none;
   transition: all 0.2s ease-in-out;
   cursor: pointer;

@@ -7,12 +7,13 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    margin-left: 20vw;
 }
 
 .cards {
     color: #545454;
     display: grid;
-    grid-template-columns: 35vw 35vw;
+    grid-template-columns: 35vw;
     margin-left: 50px;
     row-gap: 20px;
 }
@@ -23,6 +24,19 @@ button {
 
 .sidebar_btn {
     margin-top: 0;
+    font-size: 16px;
+    width: 100%;
+}
+.sidebar_btn_2 {
+    font-size: 16px;
+    max-width: 200px;
+    max-height: 40px;
+    margin: 0;
+}
+
+.marked {
+    color: black;
+    font-weight: 700;
 }
 
 .message_input {
@@ -30,4 +44,50 @@ button {
     margin-left: 50px;
     width: 60vw;
     margin-bottom: 50px;
+}
+
+.add_idea_btn {
+    font-size: 16px;
+    margin: 0;
+    margin-left: 55vw;
+    margin-top: 36px;
+    margin-bottom: 10px;
+}
+
+
+.modal-title {
+    font-size: 48px;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+.add_input_2 {
+    font-family: "Mont";
+    font-weight: bold;
+    font-size: 20px;
+    padding: 10px 5px;
+    height: 172px;
+    width: 100%;
+    resize: none;
+}
+
+.modal-group {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 16px;
+}
+
+.modal-group div {
+    width: 82%;
+    margin-bottom: 12px;
+    font-size: 20px;
+}
+
+.modal-group input {
+    width: 100%
+}
+
+.save_btn {
+    width: 280px;
+    height: 50px;
 }

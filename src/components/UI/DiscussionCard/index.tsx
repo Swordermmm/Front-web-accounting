@@ -7,35 +7,67 @@ import down from "../../../assets/thumbs_down.svg";
 
 import { Button } from "../Button";
 
+function getStatus(number: number) {
+  switch (number) {
+    case 1:
+      return "Активное";
+    case 2:
+      return "Отклоненное";
+    case 3:
+      return "Архивное";
+    case 4:
+      return "Завершенное";
+  }
+}
+
 interface ContainerProps
-  extends HTMLAttributes<HTMLDivElement>, PropsWithChildren {}
+  extends HTMLAttributes<HTMLDivElement>, PropsWithChildren {
+  like: number;
+  dislike: number;
+  status: number;
+  title: string;
+  author: string;
+  showReactions: boolean;
+}
 
 // временно
-const name = "???";
-const text = "Текст идеи";
 
 export const DiscussionCard: FC<ContainerProps> = ({
   className,
   id,
+  like,
+  dislike,
+  status,
+  title,
+  author,
+  showReactions,
   ...props
 }) => {
   return (
-    <div className={classNames(styles.container, className)} {...props}>
-      <label>ФИО</label>
+    <div className={classNames(className)} {...props}>
+      <label>{author}</label>
       <div className={styles.discussion_card}>
         <div>
-          Статус {name} <br />
-          {text}
+          Статус {getStatus(status)} <br />
+          {title}
         </div>
         <div className={styles.reaction_container}>
           <label>Реакции</label>
-          <div className={styles.reaction}>
-            235
-            <img src={up} alt="List icon" />
+          <div className={`${showReactions ? styles.reaction : styles.hidden}`}>
+            {like}
+            <img
+              className={`${showReactions ? styles.reaction_img : styles.hidden}`}
+              src={up}
+              alt="List icon"
+            />
           </div>
-          <div className={styles.reaction}>
-            267
-            <img src={down} alt="List icon" />
+          <div className={`${showReactions ? styles.reaction : styles.hidden}`}>
+            {dislike}
+            <img
+              className={`${showReactions ? styles.reaction_img : styles.hidden}`}
+              src={down}
+              alt="List icon"
+            />
           </div>
           <Button className={styles.comment_btn}>Добавить комментарий</Button>
         </div>

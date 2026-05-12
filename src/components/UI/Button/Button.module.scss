@@ -2,12 +2,13 @@
   display: block;
   color: #ffffff;
   font-weight: normal;
-  font-size: 24px;
+  font-size: 20px;
   border-radius: 25px;
   line-height: 1.25;
   text-align: center;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
+  text-decoration: none;
   
   &-primary {
     color: var(--primary-text-color);
@@ -46,4 +47,10 @@
       background-color: none;
     }
   }
+}
+
+a {
+    text-align: center;
+    padding-top: 15px;
+    padding-bottom: 15px;
 }

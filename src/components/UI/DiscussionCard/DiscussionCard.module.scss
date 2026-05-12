@@ -5,8 +5,8 @@
 .discussion_card {
     border: solid #545454 1px;
     border-radius: 10px;
-    font-size: 24px;
-    width: 60vw;
+    font-size: 20px;
+    width: 66vw;
     padding-left: 30px;
     padding-top: 10px;
     padding-bottom: 10px;
@@ -20,15 +20,15 @@
 
 .reaction_container label{
     color: #000000;
-    font-size: 24px;
+    font-size: 20px;
 }
 
 .reaction {
     font-size: 16px;
-    transform: translate(0, 6px);
+    width: 80px;
 }
 
-.reaction img {
+.reaction_img {
     width: 20px;
     margin: 0 10px;
 }
@@ -37,6 +37,10 @@
     min-width: 220px;
     width: 10vw;
     max-height: 41px;
-    font-size: 16px;
+    font-size: 14px;
     margin: 0;
+}
+
+.hidden {
+    display: none;
 }

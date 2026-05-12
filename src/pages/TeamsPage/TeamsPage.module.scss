@@ -18,16 +18,28 @@ button {
 
 .sidebar_btn {
     margin-top: 0;
-}
-
-.sidebar_btn_2 {
-    font-size: 20px;
-    max-width: 300px;
-    max-height: 50px;
+    font-size: 16px;
+    width: 100%;
 }
 
 .main {
-    margin-top: 80px;
+    margin-left: 20vw;
+}
+
+.sidebar_btn_2 {
+    font-size: 16px;
+    max-width: 200px;
+    max-height: 40px;
+    margin: 0;
+}
+
+.teams_title {
+    display: flex;
+    justify-content: space-between;
+}
+
+.main {
+    margin-top: 40px;
 }
 
 .title {
@@ -36,9 +48,9 @@ button {
 }
 
 .modal-title {
-    font-size: 36px;
+    font-size: 28px;
     text-align: center;
-    padding-bottom: 70px;
+    padding-bottom: 10px;
 }
 
 .modal-group {
@@ -49,6 +61,10 @@ button {
 }
 
 .modal-group div {
+    padding-left: 30px;
+}
+
+.modal-group div {
     width: 82%;
 }
 
@@ -56,8 +72,12 @@ button {
     color: #FF0000
 }
 
-a {
-      height: 66px;
-    display: flex;
-    align-items: center;
+.add_input {
+    font-size: 16px;
+    padding: 10px 5px;
+}
+
+.marked {
+    color: black;
+    font-weight: 700;
 }

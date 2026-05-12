@@ -5,15 +5,15 @@
 }
 
 button {
-    width: 340px;
-    height: 66px;
+    width: 240px;
+    height: 40px;
     margin: 0 auto;
     margin-top: 40px;
     
 }
 
 .auth_btn{
-    margin-bottom: 62px;
+    margin-bottom: 20px;
 }
 
 header {
@@ -47,4 +47,26 @@ label {
     height: 100%;
     display: grid;
     place-items: center;
+}
+
+.form_control {
+  display: block;
+  background-color: #ECEAEA;
+  font-weight: normal;
+  font-size: 20px;
+  padding: 15px 0;
+  line-height: 1.25;
+  text-align: left;
+  padding-left: 16px;
+  border-radius: 10px;
+  border: black solid 2px;
+  width: 560px;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  
+  
+  &-primary {
+    color: black;
+  }
 }

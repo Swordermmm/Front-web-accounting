@@ -1,44 +1,206 @@
 import type { FC } from "react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import styles from "./DiscussionPage.module.scss";
-import { Button, Sidebar, DiscussionCard, Input } from "../../components/UI";
+import {
+  Button,
+  Sidebar,
+  DiscussionCard,
+  Input,
+  Modal,
+} from "../../components/UI";
 import chat from "../../assets/chat_bubble.svg";
 import calendar from "../../assets/calendar_icon.svg";
 import list from "../../assets/list_icon.svg";
+import search from "../../assets/search_icon.svg";
+import students from "../../assets/students_icon.svg";
+import teams from "../../assets/teams_icon.svg";
 
-const DiscussionPage: FC = () => {
+interface Discussion {
+  likeReactionsCount: number;
+  dislikeReactionsCount: number;
+  authorFullName: string;
+  status: number;
+  title: string;
+  id?: string;
+}
+
+function DiscussionPage() {
   const navigate = useNavigate();
 
+  const dataTemplate: Discussion = {
+    likeReactionsCount: 100,
+    dislikeReactionsCount: 100,
+    status: 1,
+    title: "проект2",
+    id: "ee2647e2-f38b-49a1-b136-0da9af8fe785",
+    authorFullName: "fjkdshkf",
+  };
+
+  let discussions = localStorage.getItem("discussions");
+  if (!discussions) {
+    localStorage.setItem("discussions", JSON.stringify([dataTemplate]));
+  }
+  /// localStorage.setItem("discussions", JSON.stringify([dataTemplate]));
+  discussions = JSON.parse(localStorage.getItem("discussions"));
+
+  const [showModal, toggleModal] = useState<boolean>(false);
+  const [showSidebar, toggleSidebar] = useState<boolean>(true);
+  const [showReactions, toggleReactions] = useState<boolean>(true);
+
+  const handleToggleModal = () => {
+    toggleModal(!showModal);
+    toggleSidebar(!showSidebar);
+    toggleReactions(!showReactions);
+  };
+
+  const ideaData = dataTemplate;
+
+  const [idea, setForms] = useState<Discussion>({
+    likeReactionsCount: 0,
+    dislikeReactionsCount: 0,
+    status: 1,
+    title: ideaData.title,
+    id: "ee2647e2-f38b-49a1-b136-0da9af8fe785",
+    authorFullName: ideaData.authorFullName,
+  });
+
+  const handleAuthorChange = (value: string) => {
+    setForms(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          authorFullName: value,
+        }),
+    );
+  };
+
+  const handleTextChange = (value: string) => {
+    setForms(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          title: value,
+        }),
+    );
+  };
+
+  const handleSaveForm = () => {
+    const newIdea = {
+      title: idea.title,
+      likeReactionsCount: idea.likeReactionsCount,
+      dislikeReactionsCount: idea.dislikeReactionsCount,
+      status: idea.status,
+      authorFullName: idea.authorFullName,
+    };
+    toggleModal(!showModal);
+    toggleSidebar(!showSidebar);
+    toggleReactions(!showReactions);
+    discussions.push(newIdea);
+    localStorage.setItem("discussions", JSON.stringify(discussions));
+    ///    postProject(newProject);
+  };
+
   return (
-    <div className={styles.wrapper}>
-      <Sidebar>
-        <div>
-          {" "}
-          <Button variant="secondary" className={styles.sidebar_btn}>
-            <img src={calendar} alt="Calendar icon" />
-            Календарь
-          </Button>
-          <Button variant="secondary" className={styles.sidebar_btn}>
-            <img src={chat} alt="Chat icon" />
-            Обсуждения
-          </Button>
-          <Button variant="secondary" className={styles.sidebar_btn}>
-            <img src={list} alt="List icon" />
-            Список кейсов
+    <>
+      <Modal isOpen={showModal} toggle={handleToggleModal} isCrossNeeded={true}>
+        <div className={styles["modal-title"]}>Добавление идеи</div>
+        <div className={styles.modal_columns}>
+          <div className={styles["modal-group"]}>
+            <div>ФИО</div>
+            <Input
+              placeholder="Введите ФИО"
+              className={styles.add_input}
+              onChange={(e) => handleAuthorChange(e.target.value)}
+            ></Input>
+          </div>
+          <div className={styles["modal-group"]}>
+            <div>Описание идеи</div>
+            <textarea
+              className={styles.add_input_2}
+              onChange={(e) => handleTextChange(e.target.value)}
+            ></textarea>
+          </div>
+          <Button onClick={() => handleSaveForm()} className={styles.save_btn}>
+            Сохранить
           </Button>
         </div>
-      </Sidebar>
-      <div className={styles.main}>
-        <div className={styles.cards}>
-          <DiscussionCard />
+      </Modal>
+      <div className={styles.wrapper}>
+        <Sidebar isOpen={showSidebar}>
+          <div className={styles.sidebar_nav}>
+            <Button
+              variant="secondary"
+              className={`${styles.sidebar_btn} ${styles.marked}`}
+              to="/discussion"
+            >
+              <img src={chat} alt="Chat icon" />
+              Обсуждения
+            </Button>
+            <Button
+              variant="secondary"
+              className={styles.sidebar_btn}
+              to="/students"
+            >
+              <img src={students} alt="Students icon" />
+              Студенты
+            </Button>
+            <Button
+              variant="secondary"
+              className={styles.sidebar_btn}
+              to="/teams"
+            >
+              <img src={teams} alt="Teams icon" />
+              Команды
+            </Button>
+            <Button
+              variant="secondary"
+              className={styles.sidebar_btn}
+              to="/curators"
+            >
+              <img src={search} alt="Search icon" />
+              Кураторы
+            </Button>
+            <Button
+              variant="secondary"
+              className={styles.sidebar_btn}
+              to="/calendar"
+            >
+              <img src={calendar} alt="Calendar icon" />
+              Календарь
+            </Button>
+            <Button
+              variant="secondary"
+              className={styles.sidebar_btn}
+              to="/projects"
+            >
+              <img src={list} alt="list icon" />
+              Кейсы
+            </Button>
+          </div>
+        </Sidebar>
+        <div className={styles.main}>
+          <div>
+            <Button className={styles.add_idea_btn} onClick={handleToggleModal}>
+              Добавить идею
+            </Button>
+          </div>
+          <div className={styles.cards}>
+            {discussions.map((discussion) => (
+              <DiscussionCard
+                like={discussion.likeReactionsCount}
+                dislike={discussion.dislikeReactionsCount}
+                status={discussion.status}
+                author={discussion.authorFullName}
+                title={discussion.title}
+                showReactions={showReactions}
+              />
+            ))}
+          </div>
         </div>
-        <Input
-          className={styles.message_input}
-          placeholder="Введите текст"
-        ></Input>
       </div>
-    </div>
+    </>
   );
-};
+}
 
 export default DiscussionPage;

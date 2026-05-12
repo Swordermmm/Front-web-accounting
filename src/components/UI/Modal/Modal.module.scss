@@ -2,19 +2,23 @@
   position: fixed;
   top: 0;
   left: 0;
+  display: flex;
+  justify-content: center; /* Horizontal centering */
+  align-items: center;  
   width: 100%;
   height: 100%;
-  background: #0f0e0e6a;
+  background: #FFFFFF;
   margin: auto;
   color: #000000;
   font-weight: bold;
+  zoom: 0.75;
 }
 
 .modal-main {
   position: fixed;
-  background: #eeeeee;
+  background: #F3F3F3;
   width: 50rem;
-  height: 80%;
+  height: 90%;
   top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -25,12 +29,10 @@
 }
 
 .modal-box {
-  padding: 1rem 3rem;
+  padding: 1rem 2rem;
+  transform: translate(0, -25px);
 }
 
-.modal.display-block {
-  display: block;
-}
 
 .modal.display-none {
   display: none;
@@ -47,9 +49,14 @@ hr {
   height: 36px;
   margin-left:  auto;
   margin-right: 20px;
-  margin-top: 10px;
+  margin-top: 20px;
+  margin-bottom: 30px;
 }
 
 .close-button-img {
   margin: 0;
+}
+
+.modal-project {
+  width: 1250px;
 }
