@@ -1,5 +1,3 @@
-import type { FC } from "react";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import styles from "./DiscussionPage.module.scss";
 import {
@@ -26,8 +24,6 @@ interface Discussion {
 }
 
 function DiscussionPage() {
-  const navigate = useNavigate();
-
   const dataTemplate: Discussion = {
     likeReactionsCount: 100,
     dislikeReactionsCount: 100,
@@ -186,7 +182,7 @@ function DiscussionPage() {
             </Button>
           </div>
           <div className={styles.cards}>
-            {discussions.map((discussion) => (
+            {discussions.map((discussion: Discussion) => (
               <DiscussionCard
                 like={discussion.likeReactionsCount}
                 dislike={discussion.dislikeReactionsCount}

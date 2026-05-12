@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { useNavigate } from "react-router-dom";
 import styles from "./CuratorPage.module.scss";
 import { Button, Sidebar, Input, ProjectCard } from "../../components/UI";
 import chat from "../../assets/chat_bubble.svg";
@@ -10,13 +9,11 @@ import students from "../../assets/students_icon.svg";
 import teams from "../../assets/teams_icon.svg";
 
 const CuratorPage: FC = () => {
-  const navigate = useNavigate();
-
   var num_projects = 500;
 
   return (
     <div className={styles.wrapper}>
-      <Sidebar>
+      <Sidebar isOpen={true}>
         <div className={styles.sidebar_nav}>
           <Button
             variant="secondary"

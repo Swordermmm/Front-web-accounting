@@ -1,5 +1,3 @@
-import type { FC } from "react";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 import {
@@ -31,18 +29,11 @@ interface Project {
   mvp?: string;
 }
 
-interface ProjectsProps {
-  projects: Project[];
-}
-
-function ProjectsPage({ projects }: ProjectsProps) {
-  const navigate = useNavigate();
-
+function ProjectsPage() {
   const [showModal, toggleModal] = useState<boolean>(false);
   const [showSidebar, toggleSidebar] = useState<boolean>(true);
 
   const handleToggleModal = () => {
-    let element = document.getElementsByClassName(styles.sidebar);
     toggleModal(!showModal);
     toggleSidebar(!showSidebar);
   };
@@ -79,7 +70,7 @@ function ProjectsPage({ projects }: ProjectsProps) {
     );
   }
 
-  projects = [...JSON.parse(sproject)];
+  let projects = [...JSON.parse(sproject)];
 
   var num_projects = projects.length;
 
@@ -380,7 +371,7 @@ function ProjectsPage({ projects }: ProjectsProps) {
             Всего проектов : {num_projects}
           </label>
           <div className={styles.cards}>
-            {projects.map((dproject, index) => (
+            {projects.map((dproject) => (
               <ProjectCard>
                 Название проекта: {dproject.title} <br />
                 Краткое название проекта: {dproject.shortTitle}

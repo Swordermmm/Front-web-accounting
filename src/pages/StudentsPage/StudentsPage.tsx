@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { useNavigate } from "react-router-dom";
 import styles from "./StudentsPage.module.scss";
 import { Button, Sidebar, Input, ProjectCard } from "../../components/UI";
 import chat from "../../assets/chat_bubble.svg";
@@ -16,36 +15,34 @@ interface Student {
   teamNames: string[];
 }
 
-let body = {
-  limit: 4,
-  offset: 0,
-  search: null,
-  filter: 1,
-};
+// let body = {
+//   limit: 4,
+//   offset: 0,
+//   search: null,
+//   filter: 1,
+// };
 
-async function getStudents() {
-  try {
-    const response = await fetch(
-      "http://95.163.222.188:4999/api/student/list",
-      {
-        method: "POST",
-        body: JSON.stringify(body),
-        credentials: "include",
-        headers: {
-          accept: "*/*",
-          "Content-Type": "application/json",
-        },
-      },
-    );
-    return response;
-  } catch (error) {
-    return "";
-  }
-}
+// async function getStudents() {
+//   try {
+//     const response = await fetch(
+//       "http://95.163.222.188:4999/api/student/list",
+//       {
+//         method: "POST",
+//         body: JSON.stringify(body),
+//         credentials: "include",
+//         headers: {
+//           accept: "*/*",
+//           "Content-Type": "application/json",
+//         },
+//       },
+//     );
+//     return response;
+//   } catch (error) {
+//     return "";
+//   }
+// }
 
 const StudentsPage: FC = () => {
-  const navigate = useNavigate();
-
   let baseTemplate: Student = {
     fullName: "Игорь",
     email: "igor@gmail.com",
@@ -76,7 +73,7 @@ const StudentsPage: FC = () => {
 
   return (
     <div className={styles.wrapper}>
-      <Sidebar>
+      <Sidebar isOpen={true}>
         <div className={styles.sidebar_nav}>
           <Button
             variant="secondary"
@@ -138,7 +135,7 @@ const StudentsPage: FC = () => {
           ></Input>{" "}
         </div>
         <div className={styles.cards}>
-          {students.map((student) => (
+          {students.map((student: Student) => (
             <ProjectCard className={styles.student_card}>
               <label>ФИО: {student.fullName}</label>
               <label>Роль: {student.roleInTeam}</label>

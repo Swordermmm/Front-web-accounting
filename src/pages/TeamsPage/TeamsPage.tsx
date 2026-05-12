@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 import { Button, Sidebar, TeamsCard, Modal, Input } from "../../components/UI";
@@ -12,10 +11,8 @@ import list from "../../assets/list_icon.svg";
 import search from "../../assets/search_icon.svg";
 import students from "../../assets/students_icon.svg";
 import teams from "../../assets/teams_icon.svg";
-import type classNames from "classnames";
 
 const TeamsPage: FC = () => {
-  const navigate = useNavigate();
   const [showModal, toggleModal] = useState<boolean>(false);
 
   var num_people = 0;
@@ -74,7 +71,7 @@ const TeamsPage: FC = () => {
         <Button>Сохранить</Button>
       </Modal>
       <div className={styles.wrapper}>
-        <Sidebar>
+        <Sidebar isOpen={true}>
           <div className={styles.sidebar_nav}>
             {" "}
             <Button
