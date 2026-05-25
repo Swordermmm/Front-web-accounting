@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { FC } from "react";
-// import { useNavigate } from "react-router-dom";
-// import type { NavigateFunction } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import type { NavigateFunction } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
 import * as Yup from "yup";
 
@@ -14,7 +14,7 @@ import styles from "./Auth.module.scss";
 type Props = {};
 
 const Login: FC<Props> = () => {
-  // let navigate: NavigateFunction = useNavigate();
+  let navigate: NavigateFunction = useNavigate();
 
   const [message, setMessage] = useState<string>("");
 
@@ -37,7 +37,9 @@ const Login: FC<Props> = () => {
     setMessage("");
 
     login(email, password)
-      .then(() => {})
+      .then(() => {
+        navigate("/projects");
+      })
       .catch();
 
     console.log("ready");
