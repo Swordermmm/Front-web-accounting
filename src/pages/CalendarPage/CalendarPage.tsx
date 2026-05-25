@@ -9,8 +9,8 @@ import search from "../../assets/search_icon.svg";
 import students from "../../assets/students_icon.svg";
 import teams from "../../assets/teams_icon.svg";
 
-import type { Day, Week, Event } from "../../types";
-
+import type { Day, Week } from "../../types";
+//Event
 import { useState } from "react";
 
 const CalendarPage: FC = () => {
@@ -31,11 +31,11 @@ const CalendarPage: FC = () => {
     return { start: monday, end: sunday };
   };
 
-  const formatter = new Intl.DateTimeFormat("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
+  // const formatter = new Intl.DateTimeFormat("en-GB", {
+  //   hour: "2-digit",
+  //   minute: "2-digit",
+  //   hour12: false,
+  // });
 
   var days: Day[] = [
     {

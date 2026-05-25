@@ -2,7 +2,7 @@ import classNames from "classnames";
 import type { FC, HTMLAttributes, PropsWithChildren } from "react";
 import styles from "./TeamsCard.module.scss";
 
-import { Button } from "../Button";
+// import { Button } from "../Button";
 
 interface ContainerProps
   extends HTMLAttributes<HTMLDivElement>, PropsWithChildren {}

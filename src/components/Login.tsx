@@ -1,8 +1,8 @@
 import { useState } from "react";
 import type { FC } from "react";
-import { useNavigate } from "react-router-dom";
-import type { NavigateFunction } from "react-router-dom";
-import { Formik, Field, Form, ErrorMessage } from "formik";
+// import { useNavigate } from "react-router-dom";
+// import type { NavigateFunction } from "react-router-dom";
+import { Formik, Field, Form } from "formik";
 import * as Yup from "yup";
 
 import { login } from "../apis/auth.api";
@@ -14,7 +14,7 @@ import styles from "./Auth.module.scss";
 type Props = {};
 
 const Login: FC<Props> = () => {
-  let navigate: NavigateFunction = useNavigate();
+  // let navigate: NavigateFunction = useNavigate();
 
   const [message, setMessage] = useState<string>("");
 

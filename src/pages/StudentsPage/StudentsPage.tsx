@@ -51,7 +51,7 @@ const StudentsPage: FC = () => {
       return response;
     } catch (error) {
       console.log(error);
-      return [
+      setStudents([
         baseTemplate,
         {
           fullName: "Катя",
@@ -59,7 +59,7 @@ const StudentsPage: FC = () => {
           roleInTeam: "дизайнер",
           teamNames: ["команда 1"],
         },
-      ];
+      ]);
     }
   }
 

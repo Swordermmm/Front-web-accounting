@@ -49,8 +49,6 @@ function ProjectsPage() {
     mvp: "1",
   };
 
-  let sproject = localStorage.getItem("project");
-
   var projects = [dataTemplate];
 
   var num_projects = projects.length;

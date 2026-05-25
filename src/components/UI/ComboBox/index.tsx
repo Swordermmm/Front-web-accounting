@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import { useState } from "react";
 import type { InputHTMLAttributes } from "react";
-import classNames from "classnames";
+// import classNames from "classnames";
 import styles from "./ComboBox.module.scss";
 
 import {
@@ -24,12 +24,12 @@ interface Data {
 }
 
 export const ComboBox = forwardRef<HTMLInputElement, AdditionalProps>(
-  ({ className, variant = "primary", dataset, placeholder, ...props }, ref) => {
-    const classes = classNames(
-      className,
-      styles.input,
-      styles[`input-${variant}`],
-    );
+  ({ dataset, placeholder }) => {
+    // const classes = classNames(
+    //   className,
+    //   styles.input,
+    //   styles[`input-${variant}`],
+    // );
 
     const [selectedData, setSelectedData] = useState<Data | null>(null);
     const [query, setQuery] = useState("");

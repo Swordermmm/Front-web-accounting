@@ -1,8 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import styles from "./Sidebar.module.scss";
 import type { HTMLAttributes, PropsWithChildren } from "react";
-
-import logo from "../../../assets/alpha-logo-grey.png";
 
 interface SidebarProps
   extends HTMLAttributes<HTMLDivElement>, PropsWithChildren {

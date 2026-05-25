@@ -1,5 +1,4 @@
 import { forwardRef } from "react";
-import { useState } from "react";
 import type { InputHTMLAttributes } from "react";
 import classNames from "classnames";
 import styles from "./Input.module.scss";

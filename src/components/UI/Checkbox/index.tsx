@@ -1,4 +1,3 @@
-import { Checkbox as AntDCheckbox } from "antd";
 import type { CheckboxProps as AntDCheckboxProps } from "antd";
 import type { FC } from "react";
 
@@ -8,7 +7,7 @@ interface CheckboxProps extends AntDCheckboxProps {
   label?: string;
 }
 
-export const Checkbox: FC<CheckboxProps> = ({ className, label, ...props }) => {
+export const Checkbox: FC<CheckboxProps> = ({ label }) => {
   return (
     <>
       <label className={styles.custom_checkbox}>

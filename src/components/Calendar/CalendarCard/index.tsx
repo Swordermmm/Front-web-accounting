@@ -1,9 +1,9 @@
 import classNames from "classnames";
 import type { FC, HTMLAttributes, PropsWithChildren } from "react";
 import styles from "./CalendarCard.module.scss";
-import type { Day, Week, Event } from "../../../types";
+import type { Event } from "../../../types";
 
-import { Button } from "../../UI/Button";
+// import { Button } from "../../UI/Button";
 
 function setMonth(month: Date) {
   const stringMonth = month.getMonth();
