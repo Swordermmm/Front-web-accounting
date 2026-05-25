@@ -4,12 +4,6 @@
   font-weight: 700;
 }
 
-@font-face {
-  font-family: "Mont";
-  src: url("./assets/fonts/Mont-Regular.ttf");
-  font-weight: 400;
-}
-
 label, button, a {
   display: block;
   font-family: "Mont";
