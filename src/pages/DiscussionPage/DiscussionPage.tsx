@@ -33,12 +33,7 @@ function DiscussionPage() {
     authorFullName: "fjkdshkf",
   };
 
-  let discussions = localStorage.getItem("discussions");
-  if (!discussions) {
-    localStorage.setItem("discussions", JSON.stringify([dataTemplate]));
-  }
-  /// localStorage.setItem("discussions", JSON.stringify([dataTemplate]));
-  discussions = JSON.parse(localStorage.getItem("discussions"));
+  let discussions = [dataTemplate];
 
   const [showModal, toggleModal] = useState<boolean>(false);
   const [showSidebar, toggleSidebar] = useState<boolean>(true);

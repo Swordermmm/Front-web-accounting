@@ -17,12 +17,12 @@
     &:hover,
     &:focus,
     &:focus-visible {
-      color: var(--white);
+      color: white;
       background-color: var(--primary-btn-hover-focus-color);
     }
   
     &:active {
-      color: var(--white);
+      color: white;
       background-color: var(--primary-btn-active-color);
     }
   }

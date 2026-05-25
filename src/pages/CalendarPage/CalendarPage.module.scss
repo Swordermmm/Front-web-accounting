@@ -1,0 +1,170 @@
+.wrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+.main {
+    margin-left: 20vw;
+    font-size: 16px;
+}
+
+.container {
+    display: flex;
+}
+
+.title {
+    color: black;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.sidebar_btn {
+    margin-top: 0;
+    font-size: 16px;
+    width: 100%;
+}
+
+.sidebar_btn_2 {
+    font-size: 16px;
+    max-width: 200px;
+    max-height: 40px;
+    margin: 0;
+}
+
+button {
+    margin-bottom: 0;
+}
+
+.marked {
+    color: black;
+    font-weight: 700;
+}
+
+.more_btn {
+    font-size: 16px;
+}
+
+.btn_create_event {
+    margin-top: 40px;
+    margin-left: 20px;
+    height: 60px;
+}
+
+.btn_create_event_2 {
+    margin-top: 40px;
+    margin-left: 50vw;
+    height: 60px;
+}
+
+.no_meetings {
+    color: black;
+    margin-left: 50px;
+}
+
+.modal-title {
+    font-size: 48px;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+.add_input_2 {
+    font-family: "Mont";
+    font-weight: bold;
+    font-size: 20px;
+    padding: 10px 5px;
+    height: 172px;
+    width: 100%;
+    resize: none;
+}
+
+.modal-group {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 16px;
+    margin-right: 100px;
+}
+
+.modal-group div {
+    width: 82%;
+    margin-bottom: 12px;
+
+    font-size: 20px;
+}
+
+.modal-group input {
+    width: 100%
+}
+
+.modal-group select {
+    height: 56px;
+    padding: 0px;
+    width: 300px;
+
+    ::placeholder {
+        color:#FF0000
+    }
+}
+
+.save_btn {
+    width: 280px;
+    height: 50px;
+}
+
+.modal_columns {
+    display: flex;
+    font-size: 11px;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.modal_columns button {
+    font-size: 15px;
+}
+
+
+.disabled {
+    display: none;
+}
+
+.btn_dayOfWeek {
+    margin: 0;
+    border-radius: 10px;
+    border: 2px black solid;
+    accent-color: red;
+    color: #1B1B1D;
+    width: 46px;
+    height: 46px;
+    background-color: #ECEAEA;
+}
+
+.btn_dayOfWeek_hidden {
+    width: 46px;
+    height: 46px;
+    position: absolute;
+    visibility: hidden;
+    cursor: pointer;
+}
+
+.btn_dayOfWeek:hover {
+    color: white;
+    background-color: #FF0000;
+}
+
+.label_dayOfWeek {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.label_dayOfWeek input {
+    width: 46px;
+    margin: 0;
+}
+
+.label_dayOfWeek span {
+    display: flex;
+    text-align: center;
+    align-items: center; 
+    justify-content: center;
+    font-size: 18px;
+}

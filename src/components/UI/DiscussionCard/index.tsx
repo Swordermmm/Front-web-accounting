@@ -30,8 +30,6 @@ interface ContainerProps
   showReactions: boolean;
 }
 
-// временно
-
 export const DiscussionCard: FC<ContainerProps> = ({
   className,
   id,

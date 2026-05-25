@@ -1,0 +1,25 @@
+.calendar_container {
+    display: flex;
+    margin-left: 50px;
+    margin-top: 10px;
+}
+
+.arrow_button {
+    margin: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background-color: #ff00001c;
+    transform: translate(0px, 8px);
+}
+
+.arrow_button img {
+    margin: 0;
+}
+
+.calendar_switch_title {
+    font-size: 38px;
+    color: #FF0000;
+    margin-left: 4px;
+    margin-right: 4px;
+}

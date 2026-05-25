@@ -1,0 +1,55 @@
+.calendar_day_card {
+    border-radius: 10px;
+    font-size: 20px;
+    width: 58vw;
+    padding-left: 50px;
+    font-weight: 700;
+}
+
+.flex_container {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 28px;
+    margin-bottom: 5px;
+}
+
+.dayOfWeek_title {
+    font-size: 26px;
+    color: #3c4045;
+}
+
+.dayOfWeek_title hr {
+    margin: 0;
+    border: solid 1px black
+}
+
+.event_title {
+    color: #545454;
+    font-size: 26px;
+    font-weight: bold;
+    height: 34px;
+}
+
+.event_desc {
+    color: #7A7979;
+    font-size: 18px;
+    height: 24px;
+}
+
+.event_place {
+    color: #7A7979;
+    font-size: 18px;  
+    height: 24px;
+}
+
+.event_start {
+    color: #545454;
+    font-size: 18px;
+}
+
+.event_end {
+    color: #7A7979;
+    font-size: 14px;
+    text-align: center;
+}
+

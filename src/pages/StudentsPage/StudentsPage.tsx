@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useState, useEffect } from "react";
 import styles from "./StudentsPage.module.scss";
 import { Button, Sidebar, Input, ProjectCard } from "../../components/UI";
 import chat from "../../assets/chat_bubble.svg";
@@ -15,32 +16,12 @@ interface Student {
   teamNames: string[];
 }
 
-// let body = {
-//   limit: 4,
-//   offset: 0,
-//   search: null,
-//   filter: 1,
-// };
-
-// async function getStudents() {
-//   try {
-//     const response = await fetch(
-//       "http://95.163.222.188:4999/api/student/list",
-//       {
-//         method: "POST",
-//         body: JSON.stringify(body),
-//         credentials: "include",
-//         headers: {
-//           accept: "*/*",
-//           "Content-Type": "application/json",
-//         },
-//       },
-//     );
-//     return response;
-//   } catch (error) {
-//     return "";
-//   }
-// }
+let body = {
+  limit: 4,
+  offset: 0,
+  search: null,
+  filter: 1,
+};
 
 const StudentsPage: FC = () => {
   let baseTemplate: Student = {
@@ -49,15 +30,28 @@ const StudentsPage: FC = () => {
     roleInTeam: "аналитик",
     teamNames: ["команда 1"],
   };
-  ///  students = getStudents();
 
-  let dstudents = localStorage.getItem("students");
-  console.log(dstudents);
+  const [students, setStudents] = useState<Student[]>([]);
 
-  if (!dstudents) {
-    localStorage.setItem(
-      "students",
-      JSON.stringify([
+  async function getStudents() {
+    try {
+      const response = await fetch(
+        "http://95.163.222.188:4999/api/student/list",
+        {
+          method: "POST",
+          body: JSON.stringify(body),
+          credentials: "include",
+          headers: {
+            accept: "*/*",
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      console.log(response);
+      return response;
+    } catch (error) {
+      console.log(error);
+      return [
         baseTemplate,
         {
           fullName: "Катя",
@@ -65,11 +59,13 @@ const StudentsPage: FC = () => {
           roleInTeam: "дизайнер",
           teamNames: ["команда 1"],
         },
-      ]),
-    );
+      ];
+    }
   }
 
-  let students = JSON.parse(localStorage.getItem("students"));
+  useEffect(() => {
+    getStudents();
+  }, []);
 
   return (
     <div className={styles.wrapper}>

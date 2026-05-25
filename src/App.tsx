@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Router } from "react-router-dom";
 
 import Login from "./components/Login";
 import ProjectsPage from "./pages/ProjectsPage/ProjectsPage";
@@ -6,6 +6,7 @@ import DiscussionPage from "./pages/DiscussionPage/DiscussionPage";
 import TeamsPage from "./pages/TeamsPage/TeamsPage";
 import StudentsPage from "./pages/StudentsPage/StudentsPage";
 import CuratorPage from "./pages/CuratorPage/CuratorPage";
+import CalendarPage from "./pages/CalendarPage/CalendarPage";
 CuratorPage;
 
 import "./App.css";
@@ -19,6 +20,7 @@ function App() {
       <Route path="/teams" element={<TeamsPage />} />
       <Route path="/students" element={<StudentsPage />} />
       <Route path="/curators" element={<CuratorPage />} />
+      <Route path="/calendar" element={<CalendarPage />} />
     </Routes>
   );
 }

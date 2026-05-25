@@ -39,6 +39,8 @@ const Login: FC<Props> = () => {
     login(email, password)
       .then(() => {})
       .catch();
+
+    console.log("ready");
   };
 
   return (

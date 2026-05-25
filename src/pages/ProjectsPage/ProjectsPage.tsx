@@ -51,26 +51,7 @@ function ProjectsPage() {
 
   let sproject = localStorage.getItem("project");
 
-  if (!sproject) {
-    localStorage.setItem(
-      "project",
-      JSON.stringify([
-        dataTemplate,
-        {
-          title: "проект2",
-          description: "проект описание",
-          shortTitle: "1",
-          goal: "1",
-          status: 1,
-          teamsCount: 1,
-          tasks: "1",
-          mvp: "1",
-        },
-      ]),
-    );
-  }
-
-  let projects = [...JSON.parse(sproject)];
+  var projects = [dataTemplate];
 
   var num_projects = projects.length;
 
@@ -178,6 +159,7 @@ function ProjectsPage() {
       description: project.description,
       shortTitle: project.shortTitle,
       goal: project.goal,
+      teamsCount: project.teamsCount,
       status: project.status,
       tasks: project.tasks,
       mvp: project.mvp,
@@ -185,7 +167,6 @@ function ProjectsPage() {
     toggleModal(!showModal);
     toggleSidebar(!showSidebar);
     projects.push(newProject);
-    localStorage.setItem("project", JSON.stringify(projects));
     postProject(newProject);
   };
 
