@@ -17,6 +17,7 @@ const Login: FC<Props> = () => {
   let navigate: NavigateFunction = useNavigate();
 
   const [message, setMessage] = useState<string>("");
+  const [sso, setSSO] = useState<boolean>(false);
 
   const initialValues: {
     email: string;
@@ -34,7 +35,7 @@ const Login: FC<Props> = () => {
 
     try {
       const response = await fetch(
-        "http://95.163.222.188:4999/api/Auth/login",
+        "https://galacat.xyz/alpha-api/api/Auth/login",
         {
           method: "POST",
           body: JSON.stringify(data),
@@ -71,6 +72,10 @@ const Login: FC<Props> = () => {
       .catch();
   };
 
+  const handleSSO = (sso: boolean) => {
+    setSSO(!sso);
+  };
+
   return (
     <div className={styles.wrapper}>
       <div className="container login-container">
@@ -79,7 +84,17 @@ const Login: FC<Props> = () => {
         </header>
         <div className="col-md-12">
           <div className="card card-container">
-            <label className={styles.title}>Вход</label>
+            <div className={styles.title_container}>
+              {" "}
+              <label className={styles.title}>Вход</label>
+              <>
+                <label>SSO</label>
+                <Button
+                  onClick={() => handleSSO(sso)}
+                  className={!sso ? styles.sso_enabled : styles.sso_disabled}
+                ></Button>
+              </>
+            </div>
             <Formik
               initialValues={initialValues}
               validationSchema={validationSchema}
@@ -103,7 +118,7 @@ const Login: FC<Props> = () => {
                   </label>
                   <Field
                     name="password"
-                    type="password"
+                    type={!sso ? `password` : ``}
                     className={styles.form_control}
                   />
                 </div>

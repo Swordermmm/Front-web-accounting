@@ -30,6 +30,31 @@ label {
     margin-top: 10px;
 }
 
+.title_container {
+    display: flex;
+}
+
+.title_container button {
+    margin: 0;
+}
+
+.title_container label:first-of-type {
+    width: 100%;
+}
+
+.sso_enabled {
+    width: 53px;
+    height: 34px;
+}
+
+.sso_disabled {
+    width: 53px;
+    height: 34px;
+    background-color: #d5d4d4;
+    border: 3px solid #848484;
+}
+
+
 .title {
     color: #000000;
     text-align: center;
