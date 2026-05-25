@@ -1,12 +1,12 @@
 @font-face {
   font-family: "Mont";
-  src: url("assets/fonts/Mont-Semibold.ttf");
+  src: url("./assets/fonts/Mont-Semibold.ttf");
   font-weight: 700;
 }
 
 @font-face {
   font-family: "Mont";
-  src: url("assets/fonts/Mont-Regular.ttf");
+  src: url("./assets/fonts/Mont-Regular.ttf");
   font-weight: 400;
 }
 
