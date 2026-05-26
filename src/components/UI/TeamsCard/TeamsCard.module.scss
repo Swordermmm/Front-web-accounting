@@ -4,7 +4,7 @@
 }
 
 .team_card {
-    border: solid #545454 1px;
+    background-color: #ECEAEA;
     border-radius: 10px;
     font-size: 24px;
     width: 60vw;
@@ -12,10 +12,9 @@
     padding-top: 20px;
     padding-bottom: 40px;
     padding-right: 80px;
-}
-
-.team_card label{
-    font-size: 16px;
+    margin-top: 20px;
+    max-width: 380px;
+    min-height: 240px;
 }
 
 .team_card div {
@@ -29,4 +28,32 @@
     max-height: 41px;
     font-size: 16px;
     margin: 0;
+}
+
+.team_name {
+    font-size: 18px;
+    color: #545454;
+}
+
+.team_skills {
+    font-size: 16px;
+    color: #545454;
+}
+
+.team_member {
+    font-size: 14px;
+    color: #545454;
+    height: 18px;
+}
+
+.team_role {
+    font-size: 14px;
+    color: #7A7979;
+    height: 18px;
+    margin-bottom: 2px;
+}
+
+.team_projectTitle {
+    font-size: 16px;
+    color: #545454;
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import {
   Button,
@@ -18,7 +18,7 @@ import teams from "../../assets/teams_icon.svg";
 
 import styles from "./ProjectsPage.module.scss";
 
-interface Project {
+export interface Project {
   title: string;
   shortTitle?: string;
   description?: string;
@@ -27,11 +27,13 @@ interface Project {
   teamsCount: number;
   tasks?: string;
   mvp?: string;
+  id?: string;
 }
 
 function ProjectsPage() {
   const [showModal, toggleModal] = useState<boolean>(false);
   const [showSidebar, toggleSidebar] = useState<boolean>(true);
+  const [projects, setProjects] = useState<[]>([]);
 
   const handleToggleModal = () => {
     toggleModal(!showModal);
@@ -39,25 +41,19 @@ function ProjectsPage() {
   };
 
   const dataTemplate: Project = {
-    title: "проект2",
-    description: "проект описание",
-    shortTitle: "1",
-    goal: "1",
+    title: "",
+    description: "",
+    shortTitle: "",
+    goal: "",
     status: 1,
     teamsCount: 0,
-    tasks: "1",
-    mvp: "1",
+    tasks: "",
+    mvp: "",
   };
-
-  var projects = [dataTemplate];
-
-  var num_projects = projects.length;
-
-  console.log(projects);
 
   let projectData: Project = dataTemplate;
 
-  const [project, setForms] = useState<Project>({
+  const [project, setProject] = useState<Project>({
     title: projectData.title,
     description: projectData.description,
     shortTitle: projectData.shortTitle,
@@ -82,7 +78,7 @@ function ProjectsPage() {
   };
 
   const handleTitleTextChange = (value: string) => {
-    setForms(
+    setProject(
       (prevForms) =>
         (prevForms = {
           ...prevForms,
@@ -92,7 +88,7 @@ function ProjectsPage() {
   };
 
   const handleDescTextChange = (value: string) => {
-    setForms(
+    setProject(
       (prevForms) =>
         (prevForms = {
           ...prevForms,
@@ -102,7 +98,7 @@ function ProjectsPage() {
   };
 
   const handleShortTitleChange = (value: string) => {
-    setForms(
+    setProject(
       (prevForms) =>
         (prevForms = {
           ...prevForms,
@@ -112,7 +108,7 @@ function ProjectsPage() {
   };
 
   const handleStatusChange = (value: number) => {
-    setForms(
+    setProject(
       (prevForms) =>
         (prevForms = {
           ...prevForms,
@@ -122,7 +118,7 @@ function ProjectsPage() {
   };
 
   const handleGoalChange = (value: string) => {
-    setForms(
+    setProject(
       (prevForms) =>
         (prevForms = {
           ...prevForms,
@@ -132,7 +128,7 @@ function ProjectsPage() {
   };
 
   const handleTasksChange = (value: string) => {
-    setForms(
+    setProject(
       (prevForms) =>
         (prevForms = {
           ...prevForms,
@@ -142,7 +138,7 @@ function ProjectsPage() {
   };
 
   const handleMVPChange = (value: string) => {
-    setForms(
+    setProject(
       (prevForms) =>
         (prevForms = {
           ...prevForms,
@@ -164,14 +160,13 @@ function ProjectsPage() {
     };
     toggleModal(!showModal);
     toggleSidebar(!showSidebar);
-    projects.push(newProject);
     postProject(newProject);
   };
 
   async function postProject(newProject: Project) {
     try {
       const response = await fetch(
-        "http://95.163.222.188:4999/scalar/#tag/projects/POST/api/project",
+        "https://galacat.xyz/alpha-api/api/project",
         {
           method: "POST",
           body: JSON.stringify(newProject),
@@ -182,11 +177,45 @@ function ProjectsPage() {
           },
         },
       );
+      window.location.reload();
       return response;
     } catch (error) {
       return "";
     }
   }
+
+  async function getProjects() {
+    try {
+      const response = await fetch(
+        "https://galacat.xyz/alpha-api/api/project/list",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            limit: 6,
+            offset: 0,
+            search: null,
+            statuses: [1],
+          }),
+          credentials: "include",
+          headers: {
+            accept: "*/*",
+            "Content-Type": "application/json",
+          },
+        },
+      )
+        .then((response) => response.json())
+        .then((json) => {
+          setProjects(json.items);
+        });
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    getProjects();
+  }, []);
 
   return (
     <>
@@ -347,7 +376,7 @@ function ProjectsPage() {
             </div>
           </div>
           <label className={styles.projects_title}>
-            Всего проектов : {num_projects}
+            Всего проектов : {projects.length}
           </label>
           <div className={styles.cards}>
             {projects.map((dproject) => (

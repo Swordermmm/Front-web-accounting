@@ -35,16 +35,23 @@ label {
 }
 
 .title_container button {
-    margin: 0;
+    margin-top: 20px;
 }
 
 .title_container label:first-of-type {
     width: 100%;
+    transform: translate(40px);
 }
+
+.title_container label:last-of-type {
+    margin-top: 20px;
+}
+
 
 .sso_enabled {
     width: 53px;
     height: 34px;
+    margin-top: 20px;
 }
 
 .sso_disabled {
@@ -52,6 +59,7 @@ label {
     height: 34px;
     background-color: #d5d4d4;
     border: 3px solid #848484;
+    margin-top: 20px;
 }
 
 

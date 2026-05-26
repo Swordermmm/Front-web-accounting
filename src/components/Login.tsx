@@ -27,33 +27,6 @@ const Login: FC<Props> = () => {
     password: "",
   };
 
-  async function login(email: string, password: string) {
-    const data = {
-      email: email,
-      password: password,
-    };
-
-    try {
-      const response = await fetch(
-        "https://galacat.xyz/alpha-api/api/Auth/login",
-        {
-          method: "POST",
-          body: JSON.stringify(data),
-          credentials: "include",
-          headers: {
-            accept: "*/*",
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      return response;
-    } catch (error) {
-      console.log(error);
-      return "";
-    }
-  }
-
   const validationSchema = Yup.object().shape({
     email: Yup.string().required("Данное поле не заполнено!"),
     password: Yup.string().required("Данное поле не заполнено!"),
@@ -66,7 +39,6 @@ const Login: FC<Props> = () => {
 
     login(email, password)
       .then((res) => {
-        console.log(res);
         if (res.ok) navigate("/projects");
       })
       .catch();
@@ -120,6 +92,7 @@ const Login: FC<Props> = () => {
                     name="password"
                     type={!sso ? `password` : ``}
                     className={styles.form_control}
+                    autocomplete="new-password"
                   />
                 </div>
 

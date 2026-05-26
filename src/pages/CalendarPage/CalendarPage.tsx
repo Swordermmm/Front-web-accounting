@@ -3,19 +3,19 @@ import styles from "./CalendarPage.module.scss";
 import { Button, Sidebar, Modal, Input, ComboBox } from "../../components/UI";
 import { CalendarSwitch, CalendarCard } from "../../components/Calendar";
 import chat from "../../assets/chat_bubble.svg";
-import calendar from "../../assets/calendar_icon.svg";
+import calendarIcon from "../../assets/calendar_icon.svg";
 import list from "../../assets/list_icon.svg";
 import search from "../../assets/search_icon.svg";
 import students from "../../assets/students_icon.svg";
-import teams from "../../assets/teams_icon.svg";
+import teamsIcon from "../../assets/teams_icon.svg";
 
-import type { Day, Week } from "../../types";
-//Event
-import { useState } from "react";
+import type { Day, Week, Event } from "../../types";
+import { useEffect, useState } from "react";
 
 const CalendarPage: FC = () => {
   const [showModal, toggleModal] = useState<boolean>(false);
   const [showSidebar, toggleSidebar] = useState<boolean>(true);
+  const [calendar, setCalendar] = useState<[]>([]);
 
   const getCurrentWeekRange = () => {
     const today = new Date();
@@ -31,72 +31,6 @@ const CalendarPage: FC = () => {
     return { start: monday, end: sunday };
   };
 
-  // const formatter = new Intl.DateTimeFormat("en-GB", {
-  //   hour: "2-digit",
-  //   minute: "2-digit",
-  //   hour12: false,
-  // });
-
-  var days: Day[] = [
-    {
-      day: new Date(),
-      events: [
-        {
-          title: "Встреча",
-          desc: "Описание",
-          place: "Место встречи",
-          start: "13:00",
-          end: "14:00",
-        },
-        {
-          title: "Встреча",
-          desc: "Описание",
-          place: "Место встречи",
-          start: "13:00",
-          end: "14:00",
-        },
-      ],
-    },
-    {
-      day: new Date(),
-      events: [
-        {
-          title: "Встреча",
-          desc: "Описание",
-          place: "Место встречи",
-          start: "13:00",
-          end: "14:00",
-        },
-        {
-          title: "Встреча",
-          desc: "Описание",
-          place: "Место встречи",
-          start: "13:00",
-          end: "14:00",
-        },
-      ],
-    },
-    {
-      day: new Date(),
-      events: [
-        {
-          title: "Встреча",
-          desc: "Описание",
-          place: "Место встречи",
-          start: "13:00",
-          end: "14:00",
-        },
-        {
-          title: "Встреча",
-          desc: "Описание",
-          place: "Место встречи",
-          start: "13:00",
-          end: "14:00",
-        },
-      ],
-    },
-  ];
-
   const [week, setWeek] = useState<Week>(getCurrentWeekRange);
 
   function getLastWeekRange() {
@@ -104,6 +38,7 @@ const CalendarPage: FC = () => {
       start: new Date(week.start.setDate(week.start.getDate() - 7)),
       end: new Date(week.end.setDate(week.end.getDate() - 7)),
     });
+    getCalendar();
   }
 
   function getNextWeekRange() {
@@ -111,6 +46,7 @@ const CalendarPage: FC = () => {
       start: new Date(week.start.setDate(week.start.getDate() + 7)),
       end: new Date(week.end.setDate(week.end.getDate() + 7)),
     });
+    getCalendar();
   }
 
   const handleToggleModal = () => {
@@ -118,12 +54,231 @@ const CalendarPage: FC = () => {
     toggleSidebar(!showSidebar);
   };
 
-  const handleSaveForm = () => {
-    toggleModal(!showModal);
-    toggleSidebar(!showSidebar);
+  const [meeting, setMeeting] = useState({
+    title: "",
+    description: "",
+    location: "",
+    startAt: "",
+    endAt: "",
+    teamId: "",
+    daysOfWeek: [1],
+    repeatType: 1,
+    occurrencesCount: 0,
+  });
+
+  const [teams, setTeams] = useState<[]>([]);
+  const [projects, setProjects] = useState<[]>([]);
+
+  async function getTeams() {
+    try {
+      const response = await fetch(
+        "https://galacat.xyz/alpha-api/api/student/team/list",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            limit: 100,
+            offset: 0,
+            search: null,
+            projectId: null,
+            filter: 1,
+          }),
+          credentials: "include",
+          headers: {
+            accept: "*/*",
+            "Content-Type": "application/json",
+          },
+        },
+      )
+        .then((response) => response.json())
+        .then((json) => {
+          setTeams(json.items);
+        });
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function getProjects() {
+    try {
+      const response = await fetch(
+        "https://galacat.xyz/alpha-api/api/project/list",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            limit: 100,
+            offset: 0,
+            search: null,
+            statuses: [1],
+          }),
+          credentials: "include",
+          headers: {
+            accept: "*/*",
+            "Content-Type": "application/json",
+          },
+        },
+      )
+        .then((response) => response.json())
+        .then((json) => {
+          setProjects(json.items);
+        });
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function getCalendar() {
+    let body = {
+      from: `${week.start.getFullYear()}-${(week.start.getMonth() + 1).toString().padStart(2, "0")}-${week.start.getDate().toString().padStart(2, "0")}`,
+      to: `${week.end.getFullYear()}-${(week.end.getMonth() + 1).toString().padStart(2, "0")}-${week.end.getDate().toString().padStart(2, "0")}`,
+    };
+    try {
+      const response = await fetch(
+        "https://galacat.xyz/alpha-api/api/meeting/calendar",
+        {
+          method: "POST",
+          body: JSON.stringify(body),
+          credentials: "include",
+          headers: {
+            accept: "*/*",
+            "Content-Type": "application/json",
+          },
+        },
+      )
+        .then((response) => response.json())
+        .then((json) => {
+          console.log(json.days);
+          setCalendar(json.days);
+        });
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    getCalendar();
+    getTeams();
+    getProjects();
+  }, []);
+
+  const handleTitleChange = (value: string) => {
+    setMeeting(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          title: value,
+        }),
+    );
   };
 
-  const dataset: string[] = ["Durrell", "Hellen", "Therese", "Theresewrewer"];
+  const handleTeamChange = (value: string) => {
+    const team = teams.find((team) => team.name === value);
+    console.log(team);
+    if (team != undefined) {
+      setMeeting(
+        (prevForms) =>
+          (prevForms = {
+            ...prevForms,
+            teamId: team.id,
+          }),
+      );
+    }
+  };
+
+  const handlePlaceChange = (value: string) => {
+    setMeeting(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          location: value,
+        }),
+    );
+  };
+
+  const handleStartChange = (value: string) => {
+    const date = new Date("2026-05-26T12:00:00.00Z");
+    setMeeting(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          startAt: date.toISOString(),
+        }),
+    );
+    console.log(date.toISOString());
+    handleEndChange(date);
+  };
+
+  const handleEndChange = (value: Date) => {
+    const date = new Date("2026-05-26T13:00:00.00Z");
+    setMeeting(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          endAt: date.toISOString(),
+        }),
+    );
+  };
+
+  const handleOftenChange = (value: number) => {
+    setMeeting(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          repeatType: value,
+        }),
+    );
+  };
+
+  const handleDaysOfWeekChange = (value: number) => {
+    setMeeting(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          daysOfWeek: [value],
+        }),
+    );
+  };
+
+  async function PostMeeting() {
+    try {
+      console.log(meeting);
+      const response = await fetch(
+        "https://galacat.xyz/alpha-api/api/meeting",
+        {
+          method: "POST",
+          body: JSON.stringify(meeting),
+          credentials: "include",
+          headers: {
+            accept: "*/*",
+            "Content-Type": "application/json",
+          },
+        },
+      )
+        .then((response) => response.json())
+        .then((json) => {
+          console.log(json);
+        });
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const handlePostMeeting = () => {
+    PostMeeting();
+  };
+
+  const handleAmountChange = (value: number) => {
+    setMeeting(
+      (prevForms) =>
+        (prevForms = {
+          ...prevForms,
+          occurrencesCount: value,
+        }),
+    );
+  };
 
   return (
     <>
@@ -131,26 +286,27 @@ const CalendarPage: FC = () => {
         <div className={styles["modal-title"]}>Добавление встречи</div>
         <div>
           <div className={styles["modal-group"]}>
-            <div>Выбрать проект</div>
-            <ComboBox
-              placeholder="Введите название проекта"
+            <div>Название встречи</div>
+            <Input
+              placeholder="Введите название встречи"
               className={styles.add_input}
-              dataset={dataset}
-            ></ComboBox>
+              onChange={(e) => handleTitleChange(e.target.value)}
+            ></Input>
           </div>
           <div className={styles["modal-group"]}>
             <div>Выбрать команду</div>
-            <ComboBox
+            <Input
               placeholder="Введите название команды"
               className={styles.add_input}
-              dataset={dataset}
-            ></ComboBox>
+              onChange={(e) => handleTeamChange(e.target.value)}
+            ></Input>
           </div>
           <div className={styles["modal-group"]}>
             <div>Выбрать место встречи</div>
             <Input
               placeholder="Введите место встречи"
               className={styles.add_input}
+              onChange={(e) => handlePlaceChange(e.target.value)}
             ></Input>
           </div>
           <div className={styles.modal_columns}>
@@ -166,16 +322,14 @@ const CalendarPage: FC = () => {
               <div className={styles["modal-group"]}>
                 <div>Как часто</div>
                 <select
-                  // value={project.status}
                   className={styles.add_input}
-                  // onChange={(e) => handleStatusChange(Number(e.target.value))}
+                  onChange={(e) => handleOftenChange(Number(e.target.value))}
                 >
                   <option value="" disabled selected>
                     Выберите частоту
                   </option>
-                  <option value={1}>Каждую неделю</option>
-                  <option value={2}>Каждые 2 недели</option>
-                  <option value={3}>Каждый месяц</option>
+                  <option value={1}>Без повторений</option>
+                  <option value={2}>Каждую неделю</option>
                 </select>
               </div>
               <div className={styles["modal-group"]}>
@@ -194,6 +348,7 @@ const CalendarPage: FC = () => {
                 <Input
                   placeholder="00 : 00"
                   className={styles.add_input}
+                  onChange={(e) => handleStartChange(e.target.value)}
                 ></Input>
               </div>
               <div className={styles["modal-group"]}>
@@ -203,7 +358,7 @@ const CalendarPage: FC = () => {
                     <input
                       type="radio"
                       className={styles.btn_dayOfWeek_hidden}
-                      value={"пн"}
+                      value={0}
                     />
                     <span className={styles.btn_dayOfWeek}>пн</span>
                   </label>
@@ -211,7 +366,7 @@ const CalendarPage: FC = () => {
                     <input
                       type="radio"
                       className={styles.btn_dayOfWeek_hidden}
-                      value={"вт"}
+                      value={1}
                     />
                     <span className={styles.btn_dayOfWeek}>вт</span>
                   </label>
@@ -219,7 +374,7 @@ const CalendarPage: FC = () => {
                     <input
                       type="radio"
                       className={styles.btn_dayOfWeek_hidden}
-                      value={"ср"}
+                      value={2}
                     />
                     <span className={styles.btn_dayOfWeek}>ср</span>
                   </label>
@@ -227,7 +382,7 @@ const CalendarPage: FC = () => {
                     <input
                       type="radio"
                       className={styles.btn_dayOfWeek_hidden}
-                      value={"чт"}
+                      value={3}
                     />
                     <span className={styles.btn_dayOfWeek}>чт</span>
                   </label>
@@ -235,7 +390,7 @@ const CalendarPage: FC = () => {
                     <input
                       type="radio"
                       className={styles.btn_dayOfWeek_hidden}
-                      value={"пт"}
+                      value={4}
                     />
                     <span className={styles.btn_dayOfWeek}>пт</span>
                   </label>
@@ -245,12 +400,17 @@ const CalendarPage: FC = () => {
                 <div>Всего встреч</div>
                 <Input
                   placeholder="Введите кол-во встреч"
+                  type="number"
                   className={styles.add_input}
+                  onChange={(e) => handleAmountChange(Number(e.target.value))}
                 ></Input>
               </div>
             </div>
           </div>
-          <Button onClick={() => handleSaveForm()} className={styles.save_btn}>
+          <Button
+            onClick={() => handlePostMeeting()}
+            className={styles.save_btn}
+          >
             Сохранить
           </Button>
         </div>
@@ -279,7 +439,7 @@ const CalendarPage: FC = () => {
               className={styles.sidebar_btn}
               to="/teams"
             >
-              <img src={teams} alt="Teams icon" />
+              <img src={teamsIcon} alt="Teams icon" />
               Команды
             </Button>
             <Button
@@ -295,7 +455,7 @@ const CalendarPage: FC = () => {
               className={`${styles.sidebar_btn} ${styles.marked}`}
               to="/calendar"
             >
-              <img src={calendar} alt="Calendar icon" />
+              <img src={calendarIcon} alt="Calendar icon" />
               Календарь
             </Button>
             <Button
@@ -318,11 +478,11 @@ const CalendarPage: FC = () => {
           ></CalendarSwitch>
           <div className={styles.container}>
             <div>
-              {days.length != 0 ? (
-                days.map((dayofweek: Day) => (
+              {calendar.length != 0 ? (
+                calendar.map((dayofweek: Day) => (
                   <CalendarCard
-                    date={dayofweek.day}
-                    events={dayofweek.events}
+                    date={dayofweek.date}
+                    events={dayofweek.meetings}
                   ></CalendarCard>
                 ))
               ) : (
@@ -332,7 +492,7 @@ const CalendarPage: FC = () => {
             <Button
               onClick={handleToggleModal}
               className={
-                days.length != 0
+                calendar.length != 0
                   ? styles.btn_create_event
                   : styles.btn_create_event_2
               }

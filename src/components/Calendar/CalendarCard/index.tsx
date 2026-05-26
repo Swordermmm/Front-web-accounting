@@ -60,6 +60,15 @@ interface ContainerProps
   events: Event[];
 }
 
+const newTimeFormat = (time: Date) => {
+  const formattedTime = new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(time);
+  return formattedTime;
+};
+
 export const CalendarCard: FC<ContainerProps> = ({
   className,
   id,
@@ -71,7 +80,8 @@ export const CalendarCard: FC<ContainerProps> = ({
     <div className={classNames(className)} {...props}>
       <div className={styles.calendar_day_card}>
         <div className={styles.dayOfWeek_title}>
-          {getDayOfWeek(date.getDay())} - {date.getDate()} {setMonth(date)}
+          {getDayOfWeek(new Date(date).getDay())} - {new Date(date).getDate()}{" "}
+          {setMonth(new Date(date))}
           <hr />
         </div>
         <div>
@@ -80,13 +90,17 @@ export const CalendarCard: FC<ContainerProps> = ({
               <div>
                 {" "}
                 <label className={styles.event_title}>{event.title}</label>
-                <label className={styles.event_desc}>{event.desc}</label>
-                <label className={styles.event_place}>{event.place}</label>
+                <label className={styles.event_desc}>{event.description}</label>
+                <label className={styles.event_place}>{event.location}</label>
               </div>
               <div>
                 {" "}
-                <label className={styles.event_start}>{event.start}</label>
-                <label className={styles.event_end}>{event.end}</label>
+                <label className={styles.event_start}>
+                  {newTimeFormat(new Date(event.startAt))}
+                </label>
+                <label className={styles.event_end}>
+                  {newTimeFormat(new Date(event.endAt))}
+                </label>
               </div>
             </div>
           ))}

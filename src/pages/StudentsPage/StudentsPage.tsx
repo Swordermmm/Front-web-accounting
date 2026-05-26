@@ -9,34 +9,30 @@ import search from "../../assets/search_icon.svg";
 import studentsIcon from "../../assets/students_icon.svg";
 import teams from "../../assets/teams_icon.svg";
 
-interface Student {
+export interface Student {
+  updatedAt?: string;
   fullName: string;
   email: string;
   roleInTeam: string;
-  teamNames: string[];
+  teamNames?: string[];
+  id?: string;
 }
 
 let body = {
-  limit: 4,
+  limit: 10,
   offset: 0,
   search: null,
   filter: 1,
 };
 
 const StudentsPage: FC = () => {
-  let baseTemplate: Student = {
-    fullName: "Игорь",
-    email: "igor@gmail.com",
-    roleInTeam: "аналитик",
-    teamNames: ["команда 1"],
-  };
-
   const [students, setStudents] = useState<Student[]>([]);
+  const [filteredSubjects, setFilters] = useState<Student[]>([]);
 
   async function getStudents() {
     try {
       const response = await fetch(
-        "http://95.163.222.188:4999/api/student/list",
+        "https://galacat.xyz/alpha-api/api/student/list",
         {
           method: "POST",
           body: JSON.stringify(body),
@@ -46,20 +42,15 @@ const StudentsPage: FC = () => {
             "Content-Type": "application/json",
           },
         },
-      );
-      console.log(response);
+      )
+        .then((response) => response.json())
+        .then((json) => {
+          setStudents(json.items);
+          setFilters(json.items);
+        });
       return response;
     } catch (error) {
       console.log(error);
-      setStudents([
-        baseTemplate,
-        {
-          fullName: "Катя",
-          email: "kat@gmail.com",
-          roleInTeam: "дизайнер",
-          teamNames: ["команда 1"],
-        },
-      ]);
     }
   }
 

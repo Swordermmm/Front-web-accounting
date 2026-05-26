@@ -6,7 +6,7 @@
 
     try {
       const response = await fetch(
-        "http://95.163.222.188:4999/api/Auth/login",
+        "https://galacat.xyz/alpha-api/api/Auth/login",
         {
           method: "POST",
           body: JSON.stringify(data),
@@ -17,7 +17,6 @@
           },
         }
       );
-      console.log(response)
       return response;
     } catch (error) {
       console.log(error);

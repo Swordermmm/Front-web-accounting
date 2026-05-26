@@ -5,13 +5,13 @@ export interface Week {
 
 export interface Event {
   title: string;
-  desc: string;
-  place: string;
-  start: string;
-  end: string;
+  description: string;
+  location: string;
+  startAt: string;
+  endAt: string;
 }
 
 export interface Day {
-  day: Date;
-  events: Event[];
+  date: Date;
+  meetings: Event[];
 }
