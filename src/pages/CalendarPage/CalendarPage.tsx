@@ -1,4 +1,4 @@
-import type { FC } from "react";
+import type { FC, ChangeEvent } from "react";
 import styles from "./CalendarPage.module.scss";
 import { Button, Sidebar, Modal, Input, ComboBox } from "../../components/UI";
 import { CalendarSwitch, CalendarCard } from "../../components/Calendar";
@@ -9,13 +9,14 @@ import search from "../../assets/search_icon.svg";
 import students from "../../assets/students_icon.svg";
 import teamsIcon from "../../assets/teams_icon.svg";
 
-import type { Day, Week, Event } from "../../types";
+import type { Day, Week } from "../../types";
 import { useEffect, useState } from "react";
 
 const CalendarPage: FC = () => {
   const [showModal, toggleModal] = useState<boolean>(false);
   const [showSidebar, toggleSidebar] = useState<boolean>(true);
   const [calendar, setCalendar] = useState<[]>([]);
+  const [loading, isLoading] = useState<boolean>(true);
 
   const getCurrentWeekRange = () => {
     const today = new Date();
@@ -158,10 +159,13 @@ const CalendarPage: FC = () => {
   }
 
   useEffect(() => {
-    getCalendar();
-    getTeams();
-    getProjects();
-  }, []);
+    if (loading) {
+      getCalendar();
+      getTeams();
+      getProjects();
+      isLoading(false);
+    }
+  }, [meeting]);
 
   const handleTitleChange = (value: string) => {
     setMeeting(
@@ -171,6 +175,7 @@ const CalendarPage: FC = () => {
           title: value,
         }),
     );
+    console.log(meeting.title);
   };
 
   const handleTeamChange = (value: string) => {
@@ -198,7 +203,7 @@ const CalendarPage: FC = () => {
   };
 
   const handleStartChange = (value: string) => {
-    const date = new Date(`2026-05-26T${value}:00.00Z`);
+    const date = new Date(`2026-05-26T${value}:00.00+05:00`);
     setMeeting(
       (prevForms) =>
         (prevForms = {
@@ -211,7 +216,7 @@ const CalendarPage: FC = () => {
   };
 
   const handleEndChange = (value: Date) => {
-    const date = new Date(`2026-05-26T${value}:00.00Z` + 3600000);
+    const date = new Date(`2026-05-26T${value}:00.00+05:00` + 3600000);
     setMeeting(
       (prevForms) =>
         (prevForms = {
@@ -231,19 +236,18 @@ const CalendarPage: FC = () => {
     );
   };
 
-  const handleDaysOfWeekChange = (value: number) => {
+  const handleDaysOfWeekChange = (value: string) => {
     setMeeting(
       (prevForms) =>
         (prevForms = {
           ...prevForms,
-          daysOfWeek: [value],
+          daysOfWeek: [Number(value)],
         }),
     );
   };
 
   async function PostMeeting() {
     try {
-      console.log(meeting);
       const response = await fetch(
         "https://galacat.xyz/alpha-api/api/meeting",
         {
@@ -257,8 +261,8 @@ const CalendarPage: FC = () => {
         },
       )
         .then((response) => response.json())
-        .then((json) => {
-          console.log(json);
+        .then(() => {
+          window.location.reload();
         });
       return response;
     } catch (error) {
@@ -317,6 +321,7 @@ const CalendarPage: FC = () => {
                   placeholder="01.01.2026"
                   className={styles.add_input}
                   type="date"
+                  disabled
                 ></Input>
               </div>
               <div className={styles["modal-group"]}>
@@ -338,6 +343,7 @@ const CalendarPage: FC = () => {
                   placeholder="01.01.2026"
                   className={styles.add_input}
                   type="date"
+                  disabled
                 ></Input>
               </div>
             </div>
@@ -359,6 +365,8 @@ const CalendarPage: FC = () => {
                       type="radio"
                       className={styles.btn_dayOfWeek_hidden}
                       value={0}
+                      name="day"
+                      onChange={(e) => handleDaysOfWeekChange(e.target.value)}
                     />
                     <span className={styles.btn_dayOfWeek}>пн</span>
                   </label>
@@ -367,6 +375,8 @@ const CalendarPage: FC = () => {
                       type="radio"
                       className={styles.btn_dayOfWeek_hidden}
                       value={1}
+                      name="day"
+                      onChange={(e) => handleDaysOfWeekChange(e.target.value)}
                     />
                     <span className={styles.btn_dayOfWeek}>вт</span>
                   </label>
@@ -375,6 +385,8 @@ const CalendarPage: FC = () => {
                       type="radio"
                       className={styles.btn_dayOfWeek_hidden}
                       value={2}
+                      name="day"
+                      onChange={(e) => handleDaysOfWeekChange(e.target.value)}
                     />
                     <span className={styles.btn_dayOfWeek}>ср</span>
                   </label>
@@ -383,6 +395,8 @@ const CalendarPage: FC = () => {
                       type="radio"
                       className={styles.btn_dayOfWeek_hidden}
                       value={3}
+                      name="day"
+                      onChange={(e) => handleDaysOfWeekChange(e.target.value)}
                     />
                     <span className={styles.btn_dayOfWeek}>чт</span>
                   </label>
@@ -391,6 +405,8 @@ const CalendarPage: FC = () => {
                       type="radio"
                       className={styles.btn_dayOfWeek_hidden}
                       value={4}
+                      name="day"
+                      onChange={(e) => handleDaysOfWeekChange(e.target.value)}
                     />
                     <span className={styles.btn_dayOfWeek}>пт</span>
                   </label>

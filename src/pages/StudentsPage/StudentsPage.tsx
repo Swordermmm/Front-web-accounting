@@ -28,6 +28,7 @@ let body = {
 const StudentsPage: FC = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [filteredSubjects, setFilters] = useState<Student[]>([]);
+  const [loading, isLoading] = useState<boolean>(true);
 
   async function getStudents() {
     try {
@@ -47,6 +48,7 @@ const StudentsPage: FC = () => {
         .then((json) => {
           setStudents(json.items);
           setFilters(json.items);
+          isLoading(false);
         });
       return response;
     } catch (error) {
@@ -54,9 +56,22 @@ const StudentsPage: FC = () => {
     }
   }
 
+  const [fullName, setName]: [string, (name: string) => void] = useState("");
+
   useEffect(() => {
-    getStudents();
-  }, []);
+    if (loading) {
+      getStudents();
+    }
+    if (students.length > 0) {
+      let filteredData = [...students];
+      if (fullName) {
+        filteredData = filteredData.filter((subject) =>
+          subject.fullName.toLowerCase().includes(fullName.toLowerCase()),
+        );
+      }
+      setFilters(filteredData);
+    }
+  }, [fullName]);
 
   return (
     <div className={styles.wrapper}>
@@ -119,10 +134,11 @@ const StudentsPage: FC = () => {
             type="text"
             className={styles.searchBar}
             placeholder="Введите ФИО студента"
+            onChange={(e) => setName(e.target.value)}
           ></Input>{" "}
         </div>
         <div className={styles.cards}>
-          {students.map((student: Student) => (
+          {filteredSubjects.map((student: Student) => (
             <ProjectCard className={styles.student_card}>
               <label>ФИО: {student.fullName}</label>
               <label>Роль: {student.roleInTeam}</label>
