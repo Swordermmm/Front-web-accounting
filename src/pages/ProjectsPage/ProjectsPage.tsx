@@ -34,6 +34,8 @@ function ProjectsPage() {
   const [showModal, toggleModal] = useState<boolean>(false);
   const [showSidebar, toggleSidebar] = useState<boolean>(true);
   const [projects, setProjects] = useState<[]>([]);
+  const [filteredProjects, setFilters] = useState<[]>([]);
+  const [loading, isLoading] = useState<boolean>(true);
 
   const handleToggleModal = () => {
     toggleModal(!showModal);
@@ -206,6 +208,8 @@ function ProjectsPage() {
         .then((response) => response.json())
         .then((json) => {
           setProjects(json.items);
+          setFilters(json.items);
+          isLoading(false);
         });
       return response;
     } catch (error) {
@@ -213,9 +217,22 @@ function ProjectsPage() {
     }
   }
 
+  const [title, setTitle] = useState<string>("");
+
   useEffect(() => {
-    getProjects();
-  }, []);
+    if (loading) {
+      getProjects();
+    }
+    // if (projects.length > 0) {
+    //   let filteredData = [...projects];
+    //   if (title) {
+    //     filteredData = filteredData.filter((project) =>
+    //       project.title.toLowerCase().includes(title.toLowerCase()),
+    //     );
+    //   }
+    //   setFilters(filteredData);
+    // }
+  }, [title]);
 
   return (
     <>
@@ -366,6 +383,7 @@ function ProjectsPage() {
                 type="text"
                 className={styles.searchBar}
                 placeholder="Введите название проекта"
+                onChange={(e) => setTitle(e.target.value)}
               ></Input>{" "}
               <Button
                 className={styles.sidebar_btn_2}

@@ -33,6 +33,9 @@ const TeamsPage: FC = () => {
   const [showModal, toggleModal] = useState<boolean>(false);
   const [showSidebar, toggleSidebar] = useState<boolean>(true);
   const [teams, setTeams] = useState<[]>([]);
+  const [filteredTeams, setFilters] = useState<[]>([]);
+  const [loading, isLoading] = useState<boolean>(true);
+  const [name, setName] = useState<string>("");
 
   const handleToggleModal = () => {
     toggleModal(!showModal);
@@ -112,6 +115,8 @@ const TeamsPage: FC = () => {
         .then((response) => response.json())
         .then((json) => {
           setDataset(json.items);
+          setFilters(json.items);
+          isLoading(false);
         });
       return response;
     } catch (error) {
@@ -120,9 +125,20 @@ const TeamsPage: FC = () => {
   }
 
   useEffect(() => {
-    getTeams();
-    getProjects();
-  }, []);
+    if (loading) {
+      getTeams();
+      getProjects();
+    }
+    if (projects.length > 0) {
+      let filteredData = [...projects];
+      if (name) {
+        filteredData = filteredData.filter((team) =>
+          team.title.toLowerCase().includes(name.toLowerCase()),
+        );
+      }
+      setFilters(filteredData);
+    }
+  }, [name]);
 
   const handleTeamNameChange = (value: string) => {
     setTeam(
@@ -366,7 +382,8 @@ const TeamsPage: FC = () => {
                 <Input
                   type="text"
                   className={styles.searchBar}
-                  placeholder="Введите ФИО студента"
+                  placeholder="Введите название команды"
+                  onChange={(e) => setName(e.target.value)}
                 ></Input>{" "}
                 <Button
                   className={styles.sidebar_btn_2}
@@ -384,7 +401,7 @@ const TeamsPage: FC = () => {
                   skills={team.skills}
                   members={team.members}
                 ></TeamsCard>
-              ))}
+              ))}{" "}
             </div>
           </div>
         </div>
