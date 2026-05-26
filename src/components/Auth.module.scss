@@ -1,9 +1,3 @@
-.switch_btn {
-    color: #FF0000;
-    background-color: none;
-    margin-top: 10px;
-}
-
 button {
     width: 240px;
     height: 40px;
@@ -44,7 +38,9 @@ label {
 }
 
 .title_container label:last-of-type {
-    margin-top: 20px;
+    margin-top: 24px;
+    font-size: 16px;
+    color: #545454;
 }
 
 
@@ -60,6 +56,21 @@ label {
     background-color: #d5d4d4;
     border: 3px solid #848484;
     margin-top: 20px;
+}
+
+.switch_enabled {
+    background-color: white;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    margin-left: 16px;
+}
+
+.switch_disabled {
+    background-color: #545454;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
 }
 
 

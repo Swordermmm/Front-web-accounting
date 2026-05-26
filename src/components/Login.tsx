@@ -64,7 +64,13 @@ const Login: FC<Props> = () => {
                 <Button
                   onClick={() => handleSSO(sso)}
                   className={!sso ? styles.sso_enabled : styles.sso_disabled}
-                ></Button>
+                >
+                  <div
+                    className={
+                      !sso ? styles.switch_enabled : styles.switch_disabled
+                    }
+                  ></div>
+                </Button>
               </>
             </div>
             <Formik
