@@ -198,7 +198,7 @@ const CalendarPage: FC = () => {
   };
 
   const handleStartChange = (value: string) => {
-    const date = new Date("2026-05-26T12:00:00.00Z");
+    const date = new Date(`2026-05-26T${value}:00.00Z`);
     setMeeting(
       (prevForms) =>
         (prevForms = {
@@ -211,7 +211,7 @@ const CalendarPage: FC = () => {
   };
 
   const handleEndChange = (value: Date) => {
-    const date = new Date("2026-05-26T13:00:00.00Z");
+    const date = new Date(`2026-05-26T${value}:00.00Z` + 3600000);
     setMeeting(
       (prevForms) =>
         (prevForms = {
