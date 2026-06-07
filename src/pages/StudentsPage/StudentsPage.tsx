@@ -12,7 +12,7 @@ import teams from "../../assets/teams_icon.svg";
 export interface Student {
   updatedAt?: string;
   fullName: string;
-  email: string;
+  email?: string;
   roleInTeam: string;
   teamNames?: string[];
   id?: string;

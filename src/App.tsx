@@ -1,5 +1,10 @@
 import { Routes, Route } from "react-router-dom";
-
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 import Login from "./components/Login";
 import ProjectsPage from "./pages/ProjectsPage/ProjectsPage";
 import DiscussionPage from "./pages/DiscussionPage/DiscussionPage";
@@ -7,22 +12,51 @@ import TeamsPage from "./pages/TeamsPage/TeamsPage";
 import StudentsPage from "./pages/StudentsPage/StudentsPage";
 import CuratorPage from "./pages/CuratorPage/CuratorPage";
 import CalendarPage from "./pages/CalendarPage/CalendarPage";
-CuratorPage;
+import TeamDetailPage from "./pages/TeamDetailPage/TeamDetailPage";
+import MeetingDetailPage from "./pages/MeetingDetailPage/MeetingDetailPage";
 
 import "./App.css";
 
-function App() {
+const queryClient = new QueryClient({
+  // Глобальный обработчик ошибок для всех useQuery
+  queryCache: new QueryCache({
+    onError: (error) => {
+      console.error("❌ Глобальная ошибка загрузки данных:", error);
+      // TODO: Здесь можно вызвать глобальный toast, например:
+      // toast.error("Ошибка загрузки данных");
+    },
+  }),
+  // Глобальный обработчик ошибок для всех useMutation
+  mutationCache: new MutationCache({
+    onError: (error) => {
+      console.error("❌ Глобальная ошибка мутации (отправки):", error);
+      // TODO: Здесь можно вызвать глобальный toast, например:
+      // toast.error("Ошибка при сохранении данных");
+    },
+  }),
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
+
+export const App = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/projects" element={<ProjectsPage />} />
-      <Route path="/discussion" element={<DiscussionPage />} />
-      <Route path="/teams" element={<TeamsPage />} />
-      <Route path="/students" element={<StudentsPage />} />
-      <Route path="/curators" element={<CuratorPage />} />
-      <Route path="/calendar" element={<CalendarPage />} />
-    </Routes>
+    <QueryClientProvider client={queryClient}>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/discussion" element={<DiscussionPage />} />
+        <Route path="/teams" element={<TeamsPage />} />
+        <Route path="/team/:id" element={<TeamDetailPage />} />
+        <Route path="/students" element={<StudentsPage />} />
+        <Route path="/curators" element={<CuratorPage />} />
+        <Route path="/calendar" element={<CalendarPage />} />
+        <Route path="/meeting/:id" element={<MeetingDetailPage />} />
+      </Routes>
+    </QueryClientProvider>
   );
-}
+};
 
 export default App;

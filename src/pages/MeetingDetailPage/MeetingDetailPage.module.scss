@@ -1,0 +1,335 @@
+.overlay {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  z-index: 1000;
+  padding: 40px 20px;
+  overflow-y: auto;
+  color: #545454;
+}
+
+.modal {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 40px;
+  min-width: 800px;
+  max-width: 1000px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.closeBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 32px;
+  cursor: pointer;
+  color: #999;
+  line-height: 1;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+
+  &:hover {
+    color: #000;
+  }
+}
+
+.header {
+  margin-bottom: 10px;
+  padding-right: 40px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  line-height: 1.3;
+}
+
+.subtitle {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+}
+
+.table {
+  flex: 1;
+  border-collapse: collapse;
+}
+
+.th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 15px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.td {
+  padding: 16px;
+  font-size: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 200px;
+}
+
+.redBtn {
+  padding: 12px 24px ;
+  border-radius: 24px ;
+  border: none;
+  font-size: 14px ;
+  font-weight: 500 ;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+  margin-top: 10px;
+
+  &:hover:not(:disabled) {
+    background: #cc0000 ;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.loading,
+.error {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 20px;
+  gap: 20px;
+}
+
+.spinner {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.backBtn {
+  padding: 10px 24px;
+  background: #ff0000;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+
+  &:hover {
+    background: #cc0000;
+  }
+}
+
+@media (max-width: 768px) {
+  .modal {
+    min-width: auto;
+    width: 100%;
+    padding: 24px;
+  }
+
+  .content {
+    flex-direction: column;
+  }
+
+  .buttons {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .redBtn {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+  }
+}
+
+.modal-title {
+    font-size: 48px;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+.add_input {
+    padding: 10px;
+}
+
+.add_select {
+    font-size: 18px;
+    height: 54px !important;
+    width: 100%;
+    padding: 10px;
+}
+
+.add_input_2 {
+    font-family: "Mont";
+    font-weight: bold;
+    font-size: 20px;
+    padding: 10px 5px;
+    height: 172px;
+    resize: none;
+}
+
+.modal-group {
+    display: flex;
+    flex-direction: column;
+    margin-right: 100px;
+    margin-bottom: 6px;
+}
+
+.modal-group-combobox div {
+    width: 100% !important;
+}
+
+.modal-group div {
+    width: 82%;
+    margin-bottom: 8px;
+    font-size: 20px;
+}
+
+.modal-group input {
+    width: 100%;
+    font-size: 18px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.modal-group select {
+    height: 56px;
+    padding: 0px;
+    width: 300px;
+
+    ::placeholder {
+        color:#FF0000
+    }
+}
+
+.save_btn {
+    width: 280px;
+    height: 50px;
+}
+
+.modal_columns {
+    display: flex;
+    font-size: 11px;
+    justify-content: space-between;
+    width: 80%;
+}
+
+.modal_columns .modal-group {
+    width: 90%;
+    margin-right: 40px;
+}
+
+.modal_columns button {
+    font-size: 15px;
+}
+
+
+.disabled {
+    display: none;
+}
+
+.btn_dayOfWeek {
+    margin: 0;
+    border-radius: 10px;
+    border: 2px black solid;
+    accent-color: red;
+    color: #1B1B1D;
+    width: 46px;
+    height: 46px;
+    background-color: #ECEAEA;
+}
+
+.btn_dayOfWeek_hidden {
+    width: 46px;
+    height: 46px;
+    position: absolute;
+    visibility: hidden;
+    cursor: pointer;
+}
+
+.btn_dayOfWeek:hover {
+    color: white;
+    background-color: #FF0000;
+}
+
+.btn_dayOfWeek:checked {
+    color: white;
+    background-color: #FF0000;
+}
+
+.label_dayOfWeek {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.label_dayOfWeek input {
+    width: 46px;
+    margin: 0;
+    background-color: white;
+}
+
+.label_dayOfWeek span {
+    display: flex;
+    text-align: center;
+    align-items: center; 
+    justify-content: center;
+    font-size: 18px;
+}

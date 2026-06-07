@@ -67,32 +67,48 @@ button {
     text-align: center;
 }
 
+.add_input {
+    padding: 10px;
+}
+
+.add_select {
+    font-size: 18px;
+    height: 54px !important;
+    width: 100%;
+    padding: 10px;
+}
+
 .add_input_2 {
     font-family: "Mont";
     font-weight: bold;
     font-size: 20px;
     padding: 10px 5px;
     height: 172px;
-    width: 100%;
     resize: none;
 }
 
 .modal-group {
     display: flex;
     flex-direction: column;
-    padding-bottom: 16px;
     margin-right: 100px;
+    margin-bottom: 6px;
+}
+
+.modal-group-combobox div {
+    width: 100% !important;
 }
 
 .modal-group div {
     width: 82%;
-    margin-bottom: 12px;
-
+    margin-bottom: 8px;
     font-size: 20px;
 }
 
 .modal-group input {
-    width: 100%
+    width: 100%;
+    font-size: 18px;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
 .modal-group select {
@@ -114,7 +130,12 @@ button {
     display: flex;
     font-size: 11px;
     justify-content: space-between;
-    width: 100%;
+    width: 1%;
+}
+
+.modal_columns .modal-group {
+    width: 90%;
+    margin-right: 40px;
 }
 
 .modal_columns button {
@@ -150,15 +171,22 @@ button {
     background-color: #FF0000;
 }
 
+.btn_dayOfWeek:checked {
+    color: white;
+    background-color: #FF0000;
+}
+
 .label_dayOfWeek {
     display: flex;
     align-items: center;
     cursor: pointer;
+    margin-right: 10px;
 }
 
 .label_dayOfWeek input {
     width: 46px;
     margin: 0;
+    background-color: white;
 }
 
 .label_dayOfWeek span {

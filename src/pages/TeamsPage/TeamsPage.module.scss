@@ -65,9 +65,6 @@ button {
     padding-bottom: 16px;
 }
 
-.modal-group div {
-    padding-left: 30px;
-}
 
 .modal-group div {
     width: 82%;
@@ -116,8 +113,25 @@ button {
 
 .flex-group {
     display: flex;
+    padding-left: 0px;
 }
 
 .flex-group input {
     display: flex;
+}
+
+.flex-group div {
+    padding-left: 0;
+}
+
+.btn_toggle {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    width: 18rem;
+    height: 4rem;
+    background-color: #545454;
+}
+
+.btn_toggle:hover {
+    background-color: #545454;
 }

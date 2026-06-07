@@ -63,11 +63,11 @@ const Login: FC<Props> = () => {
                 <label>SSO</label>
                 <Button
                   onClick={() => handleSSO(sso)}
-                  className={!sso ? styles.sso_enabled : styles.sso_disabled}
+                  className={sso ? styles.sso_enabled : styles.sso_disabled}
                 >
                   <div
                     className={
-                      !sso ? styles.switch_enabled : styles.switch_disabled
+                      sso ? styles.switch_enabled : styles.switch_disabled
                     }
                   ></div>
                 </Button>
@@ -96,7 +96,8 @@ const Login: FC<Props> = () => {
                   </label>
                   <Field
                     name="password"
-                    type={!sso ? `password` : ``}
+                    type="password"
+                    // value={sso ? `admin123` : ``}
                     className={styles.form_control}
                     autocomplete="new-password"
                   />

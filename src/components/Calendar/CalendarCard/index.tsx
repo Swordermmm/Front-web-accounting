@@ -2,6 +2,7 @@ import classNames from "classnames";
 import type { FC, HTMLAttributes, PropsWithChildren } from "react";
 import styles from "./CalendarCard.module.scss";
 import type { Event } from "../../../types";
+import { useNavigate } from "react-router-dom";
 
 // import { Button } from "../../UI/Button";
 
@@ -76,6 +77,12 @@ export const CalendarCard: FC<ContainerProps> = ({
   events,
   ...props
 }) => {
+  const navigate = useNavigate();
+
+  const handleMeetingClick = (meetingId: string) => {
+    navigate(`/meeting/${meetingId}`);
+  };
+
   return (
     <div className={classNames(className)} {...props}>
       <div className={styles.calendar_day_card}>
@@ -86,7 +93,12 @@ export const CalendarCard: FC<ContainerProps> = ({
         </div>
         <div>
           {events.map((event: Event) => (
-            <div className={styles.flex_container}>
+            <div
+              className={styles.flex_container}
+              key={event.id}
+              onClick={() => handleMeetingClick(event.id)}
+              style={{ cursor: "pointer" }}
+            >
               <div>
                 {" "}
                 <label className={styles.event_title}>{event.title}</label>

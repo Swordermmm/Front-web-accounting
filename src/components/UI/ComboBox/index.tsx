@@ -1,7 +1,3 @@
-import { forwardRef } from "react";
-import { useState } from "react";
-import type { InputHTMLAttributes } from "react";
-// import classNames from "classnames";
 import styles from "./ComboBox.module.scss";
 
 import {
@@ -11,57 +7,61 @@ import {
   ComboboxOptions,
 } from "@headlessui/react";
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  variant?: "primary" | "secondary";
+export interface ComboBoxProps<T> {
+  value: T | null;
+  onChange: (item: T | null) => void;
+  options: T[];
+  onQueryChange: (query: string) => void;
+  displayValue: (item: T | null) => string;
+  isLoading?: boolean;
+  placeholder?: string;
+  className?: string;
 }
 
-interface AdditionalProps extends InputProps {
-  dataset: string[];
-}
+export function ComboBox<T>({
+  value,
+  onChange,
+  options,
+  onQueryChange,
+  displayValue,
+  isLoading = false,
+  placeholder,
+  className,
+}: ComboBoxProps<T>) {
+  // Скрываем дропдаун, если нет данных и нет загрузки
+  const isOptionsVisible = options.length > 0 || isLoading;
 
-interface Data {
-  name: string;
-}
-
-export const ComboBox = forwardRef<HTMLInputElement, AdditionalProps>(
-  ({ dataset, placeholder }) => {
-    // const classes = classNames(
-    //   className,
-    //   styles.input,
-    //   styles[`input-${variant}`],
-    // );
-
-    const [selectedData, setSelectedData] = useState<Data | null>(null);
-    const [query, setQuery] = useState("");
-
-    const filteredData =
-      query === ""
-        ? dataset
-        : dataset.filter((data: string) =>
-            data.toLowerCase().includes(query.toLowerCase()),
-          );
-
-    const displayData = filteredData.slice(0, 3);
-
-    return (
-      <Combobox value={selectedData} onChange={setSelectedData}>
+  return (
+    <Combobox value={value} onChange={onChange} immediate>
+      <div className={styles.combobox_wrapper}>
         <ComboboxInput
-          displayValue={(data: string) => data}
-          onChange={(event) => setQuery(event.target.value)}
-          className={styles.combobox}
+          className={`${styles.combobox} ${className || ""}`}
           placeholder={placeholder}
+          displayValue={displayValue}
+          onChange={(event) => onQueryChange(event.target.value)}
         />
+
         <ComboboxOptions
           anchor="bottom start"
-          className={`${filteredData.length != 0 ? styles.options : styles.none}`}
+          className={`${styles.options} ${!isOptionsVisible ? styles.none : ""}`}
         >
-          {displayData.map((data: string) => (
-            <ComboboxOption value={data} className={styles.option}>
-              {data}
-            </ComboboxOption>
-          ))}
+          {isLoading ? (
+            <div className={styles.loading}>Загрузка...</div>
+          ) : options.length === 0 ? (
+            <div className={styles.empty}>Ничего не найдено</div>
+          ) : (
+            options.map((item, index) => (
+              <ComboboxOption
+                key={index}
+                value={item}
+                className={styles.option}
+              >
+                {displayValue(item)}
+              </ComboboxOption>
+            ))
+          )}
         </ComboboxOptions>
-      </Combobox>
-    );
-  },
-);
+      </div>
+    </Combobox>
+  );
+}
