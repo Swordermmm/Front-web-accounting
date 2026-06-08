@@ -3,24 +3,21 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, Modal, Input, ComboBox } from "../../components/UI";
 import { useDebounce } from "../../hooks";
 import styles from "./MeetingDetailPage.module.scss";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { Team, MeetingForm } from "../CalendarPage/CalendarPage";
 
 interface MeetingDetail {
   id: string;
+  teamId: string;
+  teamName: string;
+  projectId: string;
+  projectTitle: string;
+  recurrenceSeriesId?: string | null;
   title: string;
   description: string;
   location: string;
   startAt: string;
   endAt: string;
-  team: {
-    id: string;
-    name: string;
-  };
-  project: {
-    id: string;
-    title: string;
-  };
 }
 
 const fetchTeams = async () => {
@@ -45,6 +42,27 @@ const fetchTeams = async () => {
 
   if (!response.ok) throw new Error("Ошибка загрузки команд");
   return response.json();
+};
+
+const updateMeeting = async (meeting: MeetingDetail) => {
+  const response = await fetch(
+    `https://galacat.xyz/alpha-api/api/meeting/${meeting.id}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(meeting),
+      credentials: "include",
+      headers: {
+        accept: "*/*",
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "Неизвестная ошибка");
+    throw new Error(errorText || "Ошибка обновления встречи");
+  }
+  return response.json;
 };
 
 const MeetingDetailPage = () => {
@@ -88,6 +106,35 @@ const MeetingDetailPage = () => {
     }
   };
 
+  const handleTitleChange = (value: string) =>
+    updateMeetingField("title", value);
+
+  const handleDescChange = (value: string) =>
+    updateMeetingField("description", value);
+
+  const handlePlaceChange = (value: string) =>
+    updateMeetingField("location", value);
+
+  const handleStartChange = (value: string) => {
+    const date = new Date(
+      value + meeting.startAt.slice(10, meeting.startAt.length),
+    );
+
+    const enddate = new Date(date.getTime() + 3600000);
+    updateMeetingField("startAt", date.toISOString());
+    updateMeetingField("endAt", enddate.toISOString());
+  };
+
+  const handleStartTimeChange = (value: string) => {
+    const [hours, minutes] = value.split(":").map(Number);
+    const date = new Date(meeting.startAt);
+    date.setHours(hours, minutes, 0, 0);
+
+    const enddate = new Date(date.getTime() + 3600000);
+    updateMeetingField("startAt", date.toISOString());
+    updateMeetingField("endAt", enddate.toISOString());
+  };
+
   const { data: meetingData, isLoading } = useQuery<MeetingDetail>({
     queryKey: ["meeting", id],
     queryFn: async () => {
@@ -108,16 +155,20 @@ const MeetingDetailPage = () => {
     enabled: !!id,
   });
 
-  const meeting: any = meetingData;
+  const [meeting, setMeeting] = useState<MeetingDetail | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
 
-  const originalTeam: Team = {
-    id: meeting.teamId,
-    projectId: meeting.projectId,
-    name: meeting.teamName,
-    skills: null,
-  };
-
-  const [selectedTeam, setSelectedTeam] = useState<Team | null>(originalTeam);
+  useEffect(() => {
+    if (meetingData) {
+      setMeeting(meetingData);
+      setSelectedTeam({
+        id: meetingData.teamId,
+        projectId: meetingData.projectId,
+        name: meetingData.teamName,
+        skills: null,
+      });
+    }
+  }, [meetingData]);
 
   const cancelMeetingMutation = useMutation({
     mutationFn: async () => {
@@ -141,8 +192,43 @@ const MeetingDetailPage = () => {
     },
   });
 
+  const updateMeetingMutation = useMutation({
+    mutationFn: updateMeeting,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["meeting", id] });
+      queryClient.invalidateQueries({ queryKey: ["calendar"] });
+
+      setShowModal(false);
+      alert("Встреча успешно обновлена!");
+    },
+    onError: (error: Error) => {
+      console.error("Failed to update meeting:", error);
+      alert(`Ошибка при обновлении встречи: ${error.message}`);
+    },
+  });
+
   const handleToggleModal = () => {
     setShowModal(!showModal);
+  };
+
+  const handlePostChanges = () => {
+    if (!meeting) return;
+
+    // if (!meeting.title.trim()) {
+    //   alert("Введите название встречи");
+    //   return;
+    // }
+    // if (!meeting.teamId) {
+    //   alert("Выберите команду");
+    //   return;
+    // }
+    // if (!meeting.location.trim()) {
+    //   alert("Введите место встречи");
+    //   return;
+    // }
+    updateMeetingField("startAt", meeting.startAt.slice(0, -1));
+    updateMeetingField("endAt", meeting.endAt.slice(0, -1));
+    updateMeetingMutation.mutate(meeting);
   };
 
   const handleClose = () => {
@@ -186,7 +272,7 @@ const MeetingDetailPage = () => {
             <Input
               placeholder="Введите название встречи"
               className={styles.add_input}
-              //   onChange={(e) => handleTitleChange(e.target.value)}
+              onChange={(e) => handleTitleChange(e.target.value)}
               value={meeting.title}
             />
           </div>
@@ -212,7 +298,7 @@ const MeetingDetailPage = () => {
             <Input
               placeholder="Введите место встречи"
               className={styles.add_input}
-              //   onChange={(e) => handlePlaceChange(e.target.value)}
+              onChange={(e) => handlePlaceChange(e.target.value)}
               value={meeting.location}
             />
           </div>
@@ -221,7 +307,7 @@ const MeetingDetailPage = () => {
             <Input
               placeholder="Введите описание встречи"
               className={styles.add_input}
-              //   onChange={(e) => handleDescChange(e.target.value)}
+              onChange={(e) => handleDescChange(e.target.value)}
               value={meeting.description}
             />
           </div>
@@ -230,10 +316,10 @@ const MeetingDetailPage = () => {
               <div className={styles["modal-group"]}>
                 <div>Начальная дата</div>
                 <Input
-                  placeholder="01.01.2026"
+                  value={meeting.startAt.slice(0, 10)}
                   className={styles.add_input}
+                  onChange={(e) => handleStartChange(e.target.value)}
                   type="date"
-                  disabled
                 />
               </div>
             </div>
@@ -241,20 +327,22 @@ const MeetingDetailPage = () => {
               <div className={styles["modal-group"]}>
                 <div>Начало встречи</div>
                 <Input
-                  placeholder="00 : 00"
+                  value={new Date(meeting.startAt).toTimeString().slice(0, 5)}
                   className={styles.add_input}
                   type="time"
-                  //   onChange={(e) => handleStartChange(e.target.value)}
+                  onChange={(e) => handleStartTimeChange(e.target.value)}
                 />
               </div>
             </div>
           </div>
           <Button
-            //   onClick={handlePostMeeting}
+            onClick={handlePostChanges}
             className={styles.save_btn}
-            //   disabled={createMeetingMutation.isPending}
+            disabled={updateMeetingMutation.isPending}
           >
-            Сохранить изменения
+            {updateMeetingMutation.isPending
+              ? "Сохранение..."
+              : "Сохранить изменения"}
           </Button>
         </div>
       </Modal>

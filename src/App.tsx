@@ -18,20 +18,14 @@ import MeetingDetailPage from "./pages/MeetingDetailPage/MeetingDetailPage";
 import "./App.css";
 
 const queryClient = new QueryClient({
-  // Глобальный обработчик ошибок для всех useQuery
   queryCache: new QueryCache({
     onError: (error) => {
       console.error("❌ Глобальная ошибка загрузки данных:", error);
-      // TODO: Здесь можно вызвать глобальный toast, например:
-      // toast.error("Ошибка загрузки данных");
     },
   }),
-  // Глобальный обработчик ошибок для всех useMutation
   mutationCache: new MutationCache({
     onError: (error) => {
       console.error("❌ Глобальная ошибка мутации (отправки):", error);
-      // TODO: Здесь можно вызвать глобальный toast, например:
-      // toast.error("Ошибка при сохранении данных");
     },
   }),
   defaultOptions: {

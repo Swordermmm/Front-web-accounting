@@ -144,8 +144,6 @@ const getWeekOffset = (week: Week, offset: number): Week => {
   return { start, end };
 };
 
-// Компонент
-
 const initialMeetingForm: MeetingForm = {
   title: "",
   description: "",
@@ -186,6 +184,7 @@ const CalendarPage: FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["calendar"] });
       setShowModal(false);
+      setShowSidebar(true);
       setMeeting(initialMeetingForm);
       setSelectedTeam(null);
       setTeamQuery("");
@@ -201,7 +200,7 @@ const CalendarPage: FC = () => {
   const teams: Team[] = teamsData?.items || [];
 
   const filteredTeams = useMemo(() => {
-    if (!teamQuery) return teams;
+    if (!debouncedTeamQuery) return teams;
     return teams.filter((team) =>
       team.name.toLowerCase().includes(debouncedTeamQuery.toLowerCase()),
     );
@@ -255,15 +254,39 @@ const CalendarPage: FC = () => {
   };
 
   const handleStartChange = (value: string) => {
-    const date = new Date(`2026-05-26T${value}:00.00+05:00`);
+    const date = new Date(
+      value + meeting.startAt.slice(10, meeting.startAt.length),
+    );
     updateMeetingField("startAt", date.toISOString());
+  };
 
-    const endDate = new Date(date.getTime() + 3600000);
-    updateMeetingField("endAt", endDate.toISOString());
+  const handleEndChange = (value: string) => {
+    const date = new Date(
+      value + meeting.startAt.slice(10, meeting.endAt.length),
+    );
+
+    const enddate = new Date(date.getTime() + 3600000);
+    updateMeetingField("endAt", enddate.toISOString());
+  };
+
+  const handleStartTimeChange = (value: string) => {
+    const [hours, minutes] = value.split(":").map(Number);
+    const date = new Date(meeting.startAt);
+    date.setHours(hours, minutes, 0, 0);
+
+    const enddate = new Date(date.getTime());
+    updateMeetingField("startAt", date.toISOString());
+    updateMeetingField("endAt", enddate.toISOString());
+
+    if (meeting.repeatType === 1) {
+      const enddate = new Date(week.end.getTime() + 3600000);
+      updateMeetingField("endAt", enddate.toISOString());
+    }
   };
 
   const handlePostMeeting = () => {
-    console.log(meeting);
+    updateMeetingField("startAt", meeting.startAt.slice(0, -1));
+    updateMeetingField("endAt", meeting.endAt.slice(0, -1));
     createMeetingMutation.mutate(meeting);
   };
 
@@ -321,10 +344,10 @@ const CalendarPage: FC = () => {
               <div className={styles["modal-group"]}>
                 <div>Начальная дата</div>
                 <Input
-                  placeholder="01.01.2026"
+                  value={meeting.startAt.slice(0, 10)}
                   className={styles.add_input}
                   type="date"
-                  disabled
+                  onChange={(e) => handleStartChange(e.target.value)}
                 />
               </div>
               <div className={styles["modal-group"]}>
@@ -347,10 +370,10 @@ const CalendarPage: FC = () => {
               <div className={styles["modal-group"]}>
                 <div>Конечная дата</div>
                 <Input
-                  placeholder="01.01.2026"
+                  onChange={(e) => handleEndChange(e.target.value)}
+                  value={meeting.endAt.slice(0, 10)}
                   className={styles.add_input}
                   type="date"
-                  disabled
                 />
               </div>
             </div>
@@ -358,10 +381,11 @@ const CalendarPage: FC = () => {
               <div className={styles["modal-group"]}>
                 <div>Начало встречи</div>
                 <Input
-                  placeholder="00 : 00"
+                  placeholder="00:00"
                   className={styles.add_input}
                   type="time"
-                  onChange={(e) => handleStartChange(e.target.value)}
+                  onChange={(e) => handleStartTimeChange(e.target.value)}
+                  value={new Date(meeting.startAt).toTimeString().slice(0, 5)}
                 />
               </div>
               <div className={styles["modal-group"]}>
@@ -374,7 +398,6 @@ const CalendarPage: FC = () => {
                         className={styles.btn_dayOfWeek_hidden}
                         value={day.value}
                         name="day"
-                        // checked={meeting.daysOfWeek.includes(day.value)}
                         onChange={(e) => handleDaysOfWeekChange(e.target.value)}
                       />
                       <span className={styles.btn_dayOfWeek}>{day.label}</span>

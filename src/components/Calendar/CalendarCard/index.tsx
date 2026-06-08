@@ -38,19 +38,19 @@ function setMonth(month: Date) {
 
 function getDayOfWeek(number: number) {
   switch (number) {
-    case 0:
-      return "Понедельник";
     case 1:
-      return "Вторник";
+      return "Понедельник";
     case 2:
-      return "Среда";
+      return "Вторник";
     case 3:
-      return "Четверг";
+      return "Среда";
     case 4:
-      return "Пятница";
+      return "Четверг";
     case 5:
-      return "Суббота";
+      return "Пятница";
     case 6:
+      return "Суббота";
+    case 7:
       return "Воскресенье";
   }
 }

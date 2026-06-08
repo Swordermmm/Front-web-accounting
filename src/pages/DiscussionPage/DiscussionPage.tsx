@@ -14,6 +14,8 @@ import search from "../../assets/search_icon.svg";
 import students from "../../assets/students_icon.svg";
 import teams from "../../assets/teams_icon.svg";
 
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 interface Discussion {
   likeReactionsCount: number;
   dislikeReactionsCount: number;
@@ -23,17 +25,43 @@ interface Discussion {
   id?: string;
 }
 
-function DiscussionPage() {
-  const dataTemplate: Discussion = {
-    likeReactionsCount: 100,
-    dislikeReactionsCount: 100,
-    status: 1,
-    title: "проект2",
-    id: "ee2647e2-f38b-49a1-b136-0da9af8fe785",
-    authorFullName: "fjkdshkf",
-  };
+interface DiscussionForm {
+  authorFullName: string;
+}
 
-  let discussions = [dataTemplate];
+const fetchDiscussions = async () => {
+  const response = await fetch(
+    "https://galacat.xyz/alpha-api/api/discussion/list",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        limit: 100,
+        offset: 0,
+        search: null,
+        projectId: null,
+        filter: 1,
+      }),
+      credentials: "include",
+      headers: {
+        accept: "*/*",
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  if (!response.ok) throw new Error("Ошибка загрузки команд");
+  return response.json();
+};
+
+function DiscussionPage() {
+  const queryClient = useQueryClient();
+
+  const { data: discussionsData, isLoading: isdiscussionsLoading } = useQuery({
+    queryKey: ["discussions"],
+    queryFn: fetchDiscussions,
+  });
+
+  const discussions: Discussion[] = discussionsData?.items || [];
 
   const [showModal, toggleModal] = useState<boolean>(false);
   const [showSidebar, toggleSidebar] = useState<boolean>(true);
@@ -45,52 +73,49 @@ function DiscussionPage() {
     toggleReactions(!showReactions);
   };
 
-  const ideaData = dataTemplate;
+  // const [idea, setForms] = useState<Discussion[]>(discussions);
 
-  const [idea, setForms] = useState<Discussion>({
-    likeReactionsCount: 0,
-    dislikeReactionsCount: 0,
-    status: 1,
-    title: ideaData.title,
-    id: "ee2647e2-f38b-49a1-b136-0da9af8fe785",
-    authorFullName: ideaData.authorFullName,
-  });
+  // const updateField = <K extends keyof Discussion>(
+  //   field: K,
+  //   value: MeetingForm[K],
+  // ) => {
+  //   DiscussionCard((prev) => ({ ...prev, [field]: value }));
+  // };
 
-  const handleAuthorChange = (value: string) => {
-    setForms(
-      (prevForms) =>
-        (prevForms = {
-          ...prevForms,
-          authorFullName: value,
-        }),
-    );
-  };
+  // const handleAuthorChange = (value: string) => {
+  //   setForms(
+  //     (prevForms) =>
+  //       (prevForms = {
+  //         ...prevForms,
+  //         authorFullName: value,
+  //       }),
+  //   );
+  // };
 
-  const handleTextChange = (value: string) => {
-    setForms(
-      (prevForms) =>
-        (prevForms = {
-          ...prevForms,
-          title: value,
-        }),
-    );
-  };
+  // const handleTextChange = (value: string) => {
+  //   setForms(
+  //     (prevForms) =>
+  //       (prevForms = {
+  //         ...prevForms,
+  //         title: value,
+  //       }),
+  //   );
+  // };
 
-  const handleSaveForm = () => {
-    const newIdea = {
-      title: idea.title,
-      likeReactionsCount: idea.likeReactionsCount,
-      dislikeReactionsCount: idea.dislikeReactionsCount,
-      status: idea.status,
-      authorFullName: idea.authorFullName,
-    };
-    toggleModal(!showModal);
-    toggleSidebar(!showSidebar);
-    toggleReactions(!showReactions);
-    discussions.push(newIdea);
-    localStorage.setItem("discussions", JSON.stringify(discussions));
-    ///    postProject(newProject);
-  };
+  // const handleSaveForm = () => {
+  //   const newIdea = {
+  //     title: idea.title,
+  //     likeReactionsCount: idea.likeReactionsCount,
+  //     dislikeReactionsCount: idea.dislikeReactionsCount,
+  //     status: idea.status,
+  //     authorFullName: idea.authorFullName,
+  //   };
+  //   toggleModal(!showModal);
+  //   toggleSidebar(!showSidebar);
+  //   toggleReactions(!showReactions);
+  //   discussions.push(newIdea);
+  //   localStorage.setItem("discussions", JSON.stringify(discussions));
+  // };
 
   return (
     <>
@@ -102,19 +127,19 @@ function DiscussionPage() {
             <Input
               placeholder="Введите ФИО"
               className={styles.add_input}
-              onChange={(e) => handleAuthorChange(e.target.value)}
+              // onChange={(e) => handleAuthorChange(e.target.value)}
             ></Input>
           </div>
           <div className={styles["modal-group"]}>
             <div>Описание идеи</div>
             <textarea
               className={styles.add_input_2}
-              onChange={(e) => handleTextChange(e.target.value)}
+              // onChange={(e) => handleTextChange(e.target.value)}
             ></textarea>
           </div>
-          <Button onClick={() => handleSaveForm()} className={styles.save_btn}>
+          {/* <Button onClick={() => handleSaveForm()} className={styles.save_btn}>
             Сохранить
-          </Button>
+          </Button> */}
         </div>
       </Modal>
       <div className={styles.wrapper}>
