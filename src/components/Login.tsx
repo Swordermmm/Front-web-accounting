@@ -1,51 +1,69 @@
 import { useState } from "react";
 import type { FC } from "react";
 import { useNavigate } from "react-router-dom";
-import type { NavigateFunction } from "react-router-dom";
-import { Formik, Field, Form } from "formik";
+import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 import { login } from "../apis/auth.api";
-import { Button } from "../components/UI";
+import { Button, Input } from "../components/UI";
 
 import logo from "../assets/alpha-logo.png";
 import styles from "./Auth.module.scss";
 
-type Props = {};
+const initialValues = {
+  email: "",
+  password: "",
+};
 
-const Login: FC<Props> = () => {
-  let navigate: NavigateFunction = useNavigate();
+const validationSchema = Yup.object().shape({
+  email: Yup.string()
+    .email("Некорректный email")
+    .required("Данное поле не заполнено!"),
+  password: Yup.string().required("Данное поле не заполнено!"),
+});
+
+const Login: FC = () => {
+  const navigate = useNavigate();
 
   const [message, setMessage] = useState<string>("");
   const [sso, setSSO] = useState<boolean>(false);
 
-  const initialValues: {
+  const handleLogin = async (formValue: {
     email: string;
     password: string;
-  } = {
-    email: "",
-    password: "",
-  };
-
-  const validationSchema = Yup.object().shape({
-    email: Yup.string().required("Данное поле не заполнено!"),
-    password: Yup.string().required("Данное поле не заполнено!"),
-  });
-
-  const handleLogin = (formValue: { email: string; password: string }) => {
+  }) => {
     const { email, password } = formValue;
-
+    console.log(email, password);
     setMessage("");
 
-    login(email, password)
-      .then((res) => {
-        if (res.ok) navigate("/projects");
-      })
-      .catch();
+    try {
+      const response = await login(email, password);
+
+      if (response.ok) {
+        navigate("/projects");
+      } else {
+        const errorData = await response.json().catch(() => null);
+        setMessage(errorData?.message || "Неверный логин или пароль");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setMessage("Ошибка соединения с сервером");
+    }
   };
 
-  const handleSSO = (sso: boolean) => {
-    setSSO(!sso);
+  const handleSSOToggle = (
+    setFieldValue: (field: string, value: any) => void,
+  ) => {
+    const newSSOState = !sso;
+    setSSO(newSSOState);
+
+    if (newSSOState) {
+      setFieldValue("email", "admin@email.com");
+      setFieldValue("password", "gibberish");
+    } else {
+      setFieldValue("email", "");
+      setFieldValue("password", "");
+    }
   };
 
   return (
@@ -54,69 +72,103 @@ const Login: FC<Props> = () => {
         <header>
           <img src={logo} alt="Site Logo" />
         </header>
+
         <div className="col-md-12">
           <div className="card card-container">
-            <div className={styles.title_container}>
-              {" "}
-              <label className={styles.title}>Вход</label>
-              <>
-                <label>SSO</label>
-                <Button
-                  onClick={() => handleSSO(sso)}
-                  className={sso ? styles.sso_enabled : styles.sso_disabled}
-                >
-                  <div
-                    className={
-                      sso ? styles.switch_enabled : styles.switch_disabled
-                    }
-                  ></div>
-                </Button>
-              </>
-            </div>
             <Formik
               initialValues={initialValues}
               validationSchema={validationSchema}
               onSubmit={handleLogin}
             >
-              <Form>
-                <div className="form-group">
-                  <label htmlFor="email" className="form-label">
-                    Почта
-                  </label>
-                  <Field
-                    name="email"
-                    type="text"
-                    className={styles.form_control}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="password" className="form-label">
-                    Пароль
-                  </label>
-                  <Field
-                    name="password"
-                    type="password"
-                    // value={sso ? `admin123` : ``}
-                    className={styles.form_control}
-                    autocomplete="new-password"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <Button type="submit" className={styles.auth_btn}>
-                    Войти
-                  </Button>
-                </div>
-
-                {message && (
-                  <div className="form-group">
-                    <div className="alert alert-danger" role="alert">
-                      {message}
-                    </div>
+              {({
+                values,
+                errors,
+                touched,
+                handleChange,
+                handleBlur,
+                setFieldValue,
+              }) => (
+                <Form>
+                  <div className={styles.title_container}>
+                    <label className={styles.title}>Вход</label>
+                    <>
+                      <label>SSO</label>
+                      <Button
+                        onClick={() => handleSSOToggle(setFieldValue)}
+                        className={
+                          sso ? styles.sso_enabled : styles.sso_disabled
+                        }
+                      >
+                        <div
+                          className={
+                            sso ? styles.switch_enabled : styles.switch_disabled
+                          }
+                        ></div>
+                      </Button>
+                    </>
                   </div>
-                )}
-              </Form>
+                  <div className="form-group">
+                    <label htmlFor="email" className="form-label">
+                      Почта
+                    </label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="text"
+                      value={values.email}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      className={`${styles.form_control} ${
+                        errors.email && touched.email ? styles.input_error : ""
+                      }`}
+                      placeholder="Введите email"
+                    />
+                    {errors.email && touched.email && (
+                      <div className={styles.error_message}>{errors.email}</div>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="password" className="form-label">
+                      Пароль
+                    </label>
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      value={values.password}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      className={`${styles.form_control} ${
+                        errors.password && touched.password
+                          ? styles.input_error
+                          : ""
+                      }`}
+                      placeholder="Введите пароль"
+                      autoComplete="new-password"
+                    />
+                    {errors.password && touched.password && (
+                      <div className={styles.error_message}>
+                        {errors.password}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <Button type="submit" className={styles.auth_btn}>
+                      Войти
+                    </Button>
+                  </div>
+
+                  {/* {message && (
+                    <div className="form-group">
+                      <div className="alert alert-danger" role="alert">
+                        {message}
+                      </div>
+                    </div>
+                  )} */}
+                </Form>
+              )}
             </Formik>
           </div>
         </div>
