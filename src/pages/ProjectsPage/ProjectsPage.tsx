@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
   Button,
@@ -13,12 +14,13 @@ import chat from "../../assets/chat_bubble.svg";
 import calendar from "../../assets/calendar_icon.svg";
 import list from "../../assets/list_icon.svg";
 import search from "../../assets/search_icon.svg";
-import students from "../../assets/students_icon.svg";
-import teams from "../../assets/teams_icon.svg";
+import studentsIcon from "../../assets/students_icon.svg";
+import teamsIcon from "../../assets/teams_icon.svg";
 
 import styles from "./ProjectsPage.module.scss";
 
 export interface Project {
+  id: string;
   title: string;
   shortTitle?: string;
   description?: string;
@@ -27,212 +29,201 @@ export interface Project {
   teamsCount: number;
   tasks?: string;
   mvp?: string;
-  id?: string;
 }
 
-function ProjectsPage() {
-  const [showModal, toggleModal] = useState<boolean>(false);
-  const [showSidebar, toggleSidebar] = useState<boolean>(true);
-  const [projects, setProjects] = useState<[]>([]);
-  const [filteredProjects, setFilters] = useState<[]>([]);
-  const [loading, isLoading] = useState<boolean>(true);
+interface ProjectForm {
+  title: string;
+  shortTitle: string;
+  description: string;
+  goal: string;
+  status: number;
+  tasks: string;
+  mvp: string;
+}
 
-  const handleToggleModal = () => {
-    toggleModal(!showModal);
-    toggleSidebar(!showSidebar);
-  };
+const STATUS_OPTIONS = [
+  { value: 1, label: "Активный" },
+  { value: 2, label: "Отклонённый" },
+  { value: 3, label: "Архивный" },
+  { value: 4, label: "Завершённый" },
+];
 
-  const dataTemplate: Project = {
-    title: "",
-    description: "",
-    shortTitle: "",
-    goal: "",
-    status: 1,
-    teamsCount: 0,
-    tasks: "",
-    mvp: "",
-  };
+const STATUS_MAP: Record<number, string> = {
+  1: "Активный",
+  2: "Отклонённый",
+  3: "Архивный",
+  4: "Завершённый",
+};
 
-  let projectData: Project = dataTemplate;
+const PAGE_SIZE = 6;
 
-  const [project, setProject] = useState<Project>({
-    title: projectData.title,
-    description: projectData.description,
-    shortTitle: projectData.shortTitle,
-    goal: projectData.goal,
-    teamsCount: projectData.teamsCount,
-    status: 1,
-    tasks: projectData.tasks,
-    mvp: projectData.mvp,
+const initialFormState: ProjectForm = {
+  title: "",
+  shortTitle: "",
+  description: "",
+  goal: "",
+  status: 1,
+  tasks: "",
+  mvp: "",
+};
+
+const fetchProjects = async (params: {
+  offset: number;
+  statuses: number[];
+}) => {
+  const response = await fetch(
+    "https://galacat.xyz/alpha-api/api/project/list",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        limit: PAGE_SIZE,
+        offset: params.offset,
+        search: null,
+        statuses: params.statuses,
+      }),
+      credentials: "include",
+      headers: {
+        accept: "*/*",
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  if (!response.ok) throw new Error("Ошибка загрузки проектов");
+  return response.json();
+};
+
+const createProject = async (project: ProjectForm) => {
+  const response = await fetch("https://galacat.xyz/alpha-api/api/project", {
+    method: "POST",
+    body: JSON.stringify(project),
+    credentials: "include",
+    headers: {
+      accept: "*/*",
+      "Content-Type": "application/json",
+    },
   });
 
-  const typeStatus = (value: number) => {
-    switch (value) {
-      case 1:
-        return "Активный";
-      case 2:
-        return "Отклонённый";
-      case 3:
-        return "Архивный";
-      case 4:
-        return "Завершённый";
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "Неизвестная ошибка");
+    throw new Error(errorText || "Ошибка создания проекта");
+  }
+
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    return await response.json();
+  }
+  return null;
+};
+
+function ProjectsPage() {
+  const queryClient = useQueryClient();
+
+  // UI States
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [showSidebar, setShowSidebar] = useState<boolean>(true);
+  const [searchTitle, setSearchTitle] = useState<string>("");
+  const [offset, setOffset] = useState<number>(0);
+  const [allProjects, setAllProjects] = useState<Project[]>([]);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+
+  const [statusFilters, setStatusFilters] = useState<number[]>([1]);
+
+  const [project, setProject] = useState<ProjectForm>(initialFormState);
+
+  const { data: projectsData, isLoading: isProjectsLoading } = useQuery({
+    queryKey: ["projects", offset, statusFilters],
+    queryFn: () => fetchProjects({ offset, statuses: statusFilters }),
+    keepPreviousData: true,
+  });
+
+  const createProjectMutation = useMutation({
+    mutationFn: createProject,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      setShowModal(false);
+      setShowSidebar(true);
+      setProject(initialFormState);
+      alert("Проект успешно создан!");
+    },
+    onError: (error: Error) => {
+      console.error("Failed to create project:", error);
+      alert(`Ошибка при создании проекта: ${error.message}`);
+    },
+  });
+
+  const newProjects: Project[] = projectsData?.items || [];
+
+  useEffect(() => {
+    if (offset === 0) {
+      setAllProjects(newProjects);
+      setHasMore(newProjects.length === PAGE_SIZE);
+    } else {
+      setAllProjects((prev) => {
+        const existingIds = new Set(prev.map((p) => p.id));
+        const uniqueNew = newProjects.filter((p) => !existingIds.has(p.id));
+        return [...prev, ...uniqueNew];
+      });
+      setHasMore(newProjects.length === PAGE_SIZE);
     }
+  }, [newProjects, offset]);
+
+  const filteredProjects = useMemo(() => {
+    if (!searchTitle) return allProjects;
+    return allProjects.filter((proj) =>
+      proj.title.toLowerCase().includes(searchTitle.toLowerCase()),
+    );
+  }, [allProjects, searchTitle]);
+
+  const handleToggleModal = () => {
+    setShowModal(!showModal);
+    setShowSidebar(!showSidebar);
   };
 
-  const handleTitleTextChange = (value: string) => {
-    setProject(
-      (prevForms) =>
-        (prevForms = {
-          ...prevForms,
-          title: value,
-        }),
-    );
+  const updateField = <K extends keyof ProjectForm>(
+    field: K,
+    value: ProjectForm[K],
+  ) => {
+    setProject((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleDescTextChange = (value: string) => {
-    setProject(
-      (prevForms) =>
-        (prevForms = {
-          ...prevForms,
-          description: value,
-        }),
-    );
-  };
+  const handleTitleChange = (value: string) => updateField("title", value);
+  const handleShortTitleChange = (value: string) =>
+    updateField("shortTitle", value);
+  const handleDescChange = (value: string) => updateField("description", value);
+  const handleGoalChange = (value: string) => updateField("goal", value);
+  const handleStatusChange = (value: number) => updateField("status", value);
+  const handleTasksChange = (value: string) => updateField("tasks", value);
+  const handleMVPChange = (value: string) => updateField("mvp", value);
 
-  const handleShortTitleChange = (value: string) => {
-    setProject(
-      (prevForms) =>
-        (prevForms = {
-          ...prevForms,
-          shortTitle: value,
-        }),
-    );
-  };
-
-  const handleStatusChange = (value: number) => {
-    setProject(
-      (prevForms) =>
-        (prevForms = {
-          ...prevForms,
-          status: value,
-        }),
-    );
-  };
-
-  const handleGoalChange = (value: string) => {
-    setProject(
-      (prevForms) =>
-        (prevForms = {
-          ...prevForms,
-          goal: value,
-        }),
-    );
-  };
-
-  const handleTasksChange = (value: string) => {
-    setProject(
-      (prevForms) =>
-        (prevForms = {
-          ...prevForms,
-          tasks: value,
-        }),
-    );
-  };
-
-  const handleMVPChange = (value: string) => {
-    setProject(
-      (prevForms) =>
-        (prevForms = {
-          ...prevForms,
-          mvp: value,
-        }),
-    );
+  const handleStatusFilterChange = (statusValue: number, checked: boolean) => {
+    setStatusFilters((prev) => {
+      if (checked) {
+        return [...prev, statusValue];
+      } else {
+        return prev.filter((s) => s !== statusValue);
+      }
+    });
+    setOffset(0); // Сбрасываем пагинацию при изменении фильтров
   };
 
   const handleSaveForm = () => {
-    const newProject = {
-      title: project.title,
-      description: project.description,
-      shortTitle: project.shortTitle,
-      goal: project.goal,
-      teamsCount: project.teamsCount,
-      status: project.status,
-      tasks: project.tasks,
-      mvp: project.mvp,
-    };
-    toggleModal(!showModal);
-    toggleSidebar(!showSidebar);
-    postProject(newProject);
+    // Валидация
+    if (!project.title.trim()) {
+      alert("Введите название проекта");
+      return;
+    }
+    if (!project.description.trim()) {
+      alert("Введите описание проекта");
+      return;
+    }
+
+    createProjectMutation.mutate(project);
   };
 
-  async function postProject(newProject: Project) {
-    try {
-      const response = await fetch(
-        "https://galacat.xyz/alpha-api/api/project",
-        {
-          method: "POST",
-          body: JSON.stringify(newProject),
-          credentials: "include",
-          headers: {
-            accept: "*/*",
-            "Content-Type": "application/json",
-          },
-        },
-      );
-      window.location.reload();
-      return response;
-    } catch (error) {
-      return "";
-    }
-  }
-
-  async function getProjects() {
-    try {
-      const response = await fetch(
-        "https://galacat.xyz/alpha-api/api/project/list",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            limit: 6,
-            offset: 0,
-            search: null,
-            statuses: [1],
-          }),
-          credentials: "include",
-          headers: {
-            accept: "*/*",
-            "Content-Type": "application/json",
-          },
-        },
-      )
-        .then((response) => response.json())
-        .then((json) => {
-          setProjects(json.items);
-          setFilters(json.items);
-          isLoading(false);
-        });
-      return response;
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  const [title, setTitle] = useState<string>("");
-
-  useEffect(() => {
-    if (loading) {
-      getProjects();
-    }
-    // if (projects.length > 0) {
-    //   let filteredData = [...projects];
-    //   if (title) {
-    //     filteredData = filteredData.filter((project) =>
-    //       project.title.toLowerCase().includes(title.toLowerCase()),
-    //     );
-    //   }
-    //   setFilters(filteredData);
-    // }
-  }, [title]);
+  const handleLoadMore = () => {
+    setOffset((prev) => prev + PAGE_SIZE);
+  };
 
   return (
     <>
@@ -250,8 +241,9 @@ function ProjectsPage() {
               <Input
                 placeholder="Введите название проекта"
                 className={styles.add_input}
-                onChange={(e) => handleTitleTextChange(e.target.value)}
-              ></Input>
+                onChange={(e) => handleTitleChange(e.target.value)}
+                value={project.title}
+              />
             </div>
             <div className={styles["modal-group"]}>
               <div>Краткое название проекта</div>
@@ -259,15 +251,17 @@ function ProjectsPage() {
                 placeholder="Введите краткое название проекта"
                 className={styles.add_input}
                 onChange={(e) => handleShortTitleChange(e.target.value)}
-              ></Input>
+                value={project.shortTitle}
+              />
             </div>
             <div className={styles["modal-group"]}>
               <div>Описание проекта</div>
               <Input
                 placeholder="Введите описание проекта"
                 className={styles.add_input}
-                onChange={(e) => handleDescTextChange(e.target.value)}
-              ></Input>
+                onChange={(e) => handleDescChange(e.target.value)}
+                value={project.description}
+              />
             </div>
             <div className={styles["modal-group"]}>
               <div>Цель проекта</div>
@@ -275,7 +269,8 @@ function ProjectsPage() {
                 placeholder="Введите цель проекта"
                 className={styles.add_input}
                 onChange={(e) => handleGoalChange(e.target.value)}
-              ></Input>
+                value={project.goal}
+              />
             </div>
             <div className={styles["modal-group"]}>
               <div>Статус проекта</div>
@@ -284,46 +279,58 @@ function ProjectsPage() {
                 className={styles.add_input}
                 onChange={(e) => handleStatusChange(Number(e.target.value))}
               >
-                <option value="" disabled selected>
-                  Статус
-                </option>
-                <option value={1}>Активный</option>
-                <option value={2}>Отклонённый</option>
-                <option value={3}>Архивный</option>
-                <option value={4}>Завершённый</option>
+                {STATUS_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
           <div className={styles.modal_column_2}>
-            {" "}
             <div className={styles["modal-group"]}>
               <div>Задачи проекта</div>
               <textarea
                 className={styles.add_input_2}
                 onChange={(e) => handleTasksChange(e.target.value)}
-              ></textarea>
+                value={project.tasks}
+                placeholder="Введите задачи проекта"
+              />
             </div>
             <div className={styles["modal-group"]}>
               <div>MVP</div>
               <textarea
                 className={styles.add_input_2}
                 onChange={(e) => handleMVPChange(e.target.value)}
-              ></textarea>
+                value={project.mvp}
+                placeholder="Введите MVP"
+              />
             </div>
           </div>
         </div>
-        <Button onClick={() => handleSaveForm()} className={styles.save_btn}>
-          Сохранить
+        <Button
+          onClick={handleSaveForm}
+          className={styles.save_btn}
+          disabled={createProjectMutation.isPending}
+        >
+          {createProjectMutation.isPending ? "Создание..." : "Сохранить"}
         </Button>
       </Modal>
+
       <div className={styles.wrapper}>
         <Sidebar isOpen={showSidebar}>
           <ul>
-            <label className={styles.title}> Статус проекта :</label>
-            <Checkbox label="Активные"></Checkbox>
-            <Checkbox label="Отклоненные"></Checkbox>
-            <Checkbox label="Архивные"></Checkbox>
-            <Checkbox label="Завершенные"></Checkbox>
+            <label className={styles.title}>Статус проекта:</label>
+            {STATUS_OPTIONS.map((option) => (
+              <Checkbox
+                key={option.value}
+                label={option.label}
+                checked={statusFilters.includes(option.value)}
+                onChange={(e) =>
+                  handleStatusFilterChange(option.value, e.target.checked)
+                }
+              />
+            ))}
           </ul>
           <Button
             variant="secondary"
@@ -338,7 +345,7 @@ function ProjectsPage() {
             className={styles.sidebar_btn}
             to="/students"
           >
-            <img src={students} alt="Students icon" />
+            <img src={studentsIcon} alt="Students icon" />
             Студенты
           </Button>
           <Button
@@ -346,7 +353,7 @@ function ProjectsPage() {
             className={styles.sidebar_btn}
             to="/teams"
           >
-            <img src={teams} alt="Teams icon" />
+            <img src={teamsIcon} alt="Teams icon" />
             Команды
           </Button>
           <Button
@@ -374,17 +381,18 @@ function ProjectsPage() {
             Кейсы
           </Button>
         </Sidebar>
+
         <div className={styles.main}>
           <div className={styles.search}>
             <label className={styles.projects_title}>Поиск</label>
             <div className={styles.projects_essentials}>
-              {" "}
               <Input
                 type="text"
                 className={styles.searchBar}
                 placeholder="Введите название проекта"
-                onChange={(e) => setTitle(e.target.value)}
-              ></Input>{" "}
+                onChange={(e) => setSearchTitle(e.target.value)}
+                value={searchTitle}
+              />
               <Button
                 className={styles.sidebar_btn_2}
                 onClick={handleToggleModal}
@@ -393,27 +401,43 @@ function ProjectsPage() {
               </Button>
             </div>
           </div>
+
           <label className={styles.projects_title}>
-            Всего проектов : {projects.length}
+            Всего проектов: {filteredProjects.length}
           </label>
+
           <div className={styles.cards}>
-            {projects.map((dproject) => (
-              <ProjectCard>
-                Название проекта: {dproject.title} <br />
-                Краткое название проекта: {dproject.shortTitle}
-                <br />
-                Описание проекта: {dproject.description} <br />
-                Задачи: {dproject.tasks} <br />
-                Цель проекта: {dproject.goal}
-                <br />
-                Количество команд: {dproject.teamsCount}
-                <br />
-                Статус: {typeStatus(dproject.status)} <br />
-              </ProjectCard>
-            ))}
+            {isProjectsLoading && allProjects.length === 0 ? (
+              <div className={styles.loading}>Загрузка проектов...</div>
+            ) : filteredProjects.length > 0 ? (
+              filteredProjects.map((dproject) => (
+                <ProjectCard key={dproject.id || dproject.title}>
+                  Название проекта: {dproject.title} <br />
+                  Краткое название проекта: {dproject.shortTitle || "—"}
+                  <br />
+                  Описание проекта: {dproject.description || "—"} <br />
+                  Задачи: {dproject.tasks || "—"} <br />
+                  Цель проекта: {dproject.goal || "—"}
+                  <br />
+                  Количество команд: {dproject.teamsCount}
+                  <br />
+                  Статус: {STATUS_MAP[dproject.status] || "Неизвестный"} <br />
+                </ProjectCard>
+              ))
+            ) : (
+              <div className={styles.no_projects}>Проекты не найдены</div>
+            )}
           </div>
 
-          <Button className={styles.new_button}>Загрузить ещё</Button>
+          {hasMore && !isProjectsLoading && (
+            <Button
+              className={styles.new_button}
+              onClick={handleLoadMore}
+              disabled={isProjectsLoading}
+            >
+              {isProjectsLoading ? "Загрузка..." : "Загрузить ещё"}
+            </Button>
+          )}
         </div>
       </div>
     </>
