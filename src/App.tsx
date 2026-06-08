@@ -14,6 +14,7 @@ import CuratorPage from "./pages/CuratorPage/CuratorPage";
 import CalendarPage from "./pages/CalendarPage/CalendarPage";
 import TeamDetailPage from "./pages/TeamDetailPage/TeamDetailPage";
 import MeetingDetailPage from "./pages/MeetingDetailPage/MeetingDetailPage";
+import DiscussionCommentsPage from "./pages/DiscussionCommentsPage/DiscussionCommentsPage";
 
 import "./App.css";
 
@@ -42,6 +43,7 @@ export const App = () => {
         <Route path="/" element={<Login />} />
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/discussion" element={<DiscussionPage />} />
+        <Route path="/idea/:id" element={<DiscussionCommentsPage />} />
         <Route path="/teams" element={<TeamsPage />} />
         <Route path="/team/:id" element={<TeamDetailPage />} />
         <Route path="/students" element={<StudentsPage />} />

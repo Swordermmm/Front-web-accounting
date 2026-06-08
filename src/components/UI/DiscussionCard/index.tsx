@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import type { FC, HTMLAttributes, PropsWithChildren } from "react";
 import styles from "./DiscussionCard.module.scss";
+import { useNavigate } from "react-router-dom";
 
 import up from "../../../assets/thumbs_up.svg";
 import down from "../../../assets/thumbs_down.svg";
@@ -41,6 +42,13 @@ export const DiscussionCard: FC<ContainerProps> = ({
   showReactions,
   ...props
 }) => {
+  const navigate = useNavigate();
+
+  const handleMeetingClick = (ideaId: string | undefined) => {
+    if (!ideaId) return alert("Обсуждение не найдено!");
+    navigate(`/idea/${ideaId}`);
+  };
+
   return (
     <div className={classNames(className)} {...props}>
       <label>{author}</label>
@@ -67,7 +75,12 @@ export const DiscussionCard: FC<ContainerProps> = ({
               alt="List icon"
             />
           </div>
-          <Button className={styles.comment_btn}>Добавить комментарий</Button>
+          <Button
+            className={styles.comment_btn}
+            onClick={() => handleMeetingClick(id)}
+          >
+            Добавить комментарий
+          </Button>
         </div>
       </div>
     </div>

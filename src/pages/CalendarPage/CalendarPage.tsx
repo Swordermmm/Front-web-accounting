@@ -374,6 +374,7 @@ const CalendarPage: FC = () => {
                   value={meeting.endAt.slice(0, 10)}
                   className={styles.add_input}
                   type="date"
+                  disabled={meeting.repeatType === 1}
                 />
               </div>
             </div>
@@ -400,7 +401,11 @@ const CalendarPage: FC = () => {
                         name="day"
                         onChange={(e) => handleDaysOfWeekChange(e.target.value)}
                       />
-                      <span className={styles.btn_dayOfWeek}>{day.label}</span>
+                      <span
+                        className={`${styles.btn_dayOfWeek} ${meeting.daysOfWeek.includes(day.value) ? styles.btn_dayOfWeek_active : ""}`}
+                      >
+                        {day.label}
+                      </span>
                     </label>
                   ))}
                 </div>

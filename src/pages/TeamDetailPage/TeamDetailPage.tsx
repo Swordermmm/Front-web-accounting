@@ -174,13 +174,12 @@ const TeamDetailPage = () => {
           Назад к командам
         </Button>
       </div>
-
+      <hr></hr>
       <h1 className={styles.teamName}>{team.name}</h1>
       <div className={styles.stack}>
         Стек команды : {team.skills || "Не указан"}
       </div>
 
-      {/* Участники команды + кнопка истории */}
       <div className={styles.membersSection}>
         <h2 className={styles.sectionLabel}>Участники команды</h2>
         <div className={styles.membersRow}>
@@ -205,6 +204,7 @@ const TeamDetailPage = () => {
           </Button>
         </div>
       </div>
+      <hr></hr>
 
       <div className={styles.projectSection}>
         <h2 className={styles.projectTitle}>{team.project.title}</h2>
@@ -212,7 +212,6 @@ const TeamDetailPage = () => {
         <div className={styles.teamsCount}>
           Количество команд : {team.project.teamsCount}
         </div>
-
         <div className={styles.projectAndBtn}>
           <div className={styles.projectInfo}>
             <h3 className={styles.subTitle}>Описание проекта</h3>
@@ -258,6 +257,7 @@ const TeamDetailPage = () => {
           </Button>
         </div>
       </div>
+      <hr></hr>
 
       <div className={styles.iterationSection}>
         <div className={styles.iterationHeader}>

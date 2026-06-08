@@ -71,12 +71,20 @@ button {
     padding: 10px;
 }
 
+.add_input:disabled {
+    background-color: #d6d5d5;
+}
+
 .add_select {
     font-size: 18px;
     height: 54px !important;
     width: 100%;
     padding: 10px;
 }
+
+.add_select option:checked {
+    background-color: #FF0000;
+}   
 
 .add_input_2 {
     font-family: "Mont";
@@ -171,7 +179,7 @@ button {
     background-color: #FF0000;
 }
 
-.btn_dayOfWeek:checked {
+.btn_dayOfWeek_active {
     color: white;
     background-color: #FF0000;
 }
@@ -186,7 +194,6 @@ button {
 .label_dayOfWeek input {
     width: 46px;
     margin: 0;
-    background-color: white;
 }
 
 .label_dayOfWeek span {

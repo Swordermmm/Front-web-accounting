@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./DiscussionPage.module.scss";
 import {
   Button,
@@ -26,7 +27,8 @@ interface Discussion {
 }
 
 interface DiscussionForm {
-  authorFullName: string;
+  title: string;
+  description: string;
 }
 
 const fetchDiscussions = async () => {
@@ -38,8 +40,6 @@ const fetchDiscussions = async () => {
         limit: 100,
         offset: 0,
         search: null,
-        projectId: null,
-        filter: 1,
       }),
       credentials: "include",
       headers: {
@@ -48,13 +48,30 @@ const fetchDiscussions = async () => {
       },
     },
   );
+  if (!response.ok) throw new Error("Ошибка загрузки обсуждений");
+  return response.json();
+};
+
+const createIdea = async (idea: DiscussionForm) => {
+  const response = await fetch("https://galacat.xyz/alpha-api/api/discussion", {
+    method: "POST",
+    body: JSON.stringify({
+      title: idea.title,
+      description: idea.description,
+    }),
+    credentials: "include",
+    headers: {
+      accept: "*/*",
+      "Content-Type": "application/json",
+    },
+  });
 
   if (!response.ok) throw new Error("Ошибка загрузки команд");
-  return response.json();
 };
 
 function DiscussionPage() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: discussionsData, isLoading: isdiscussionsLoading } = useQuery({
     queryKey: ["discussions"],
@@ -73,49 +90,42 @@ function DiscussionPage() {
     toggleReactions(!showReactions);
   };
 
-  // const [idea, setForms] = useState<Discussion[]>(discussions);
+  const [idea, setForms] = useState<DiscussionForm>({
+    title: "",
+    description: "",
+  });
 
-  // const updateField = <K extends keyof Discussion>(
-  //   field: K,
-  //   value: MeetingForm[K],
-  // ) => {
-  //   DiscussionCard((prev) => ({ ...prev, [field]: value }));
-  // };
+  const updateField = <K extends keyof DiscussionForm>(
+    field: K,
+    value: DiscussionForm[K],
+  ) => {
+    setForms((prev) => ({ ...prev, [field]: value }));
+  };
 
-  // const handleAuthorChange = (value: string) => {
-  //   setForms(
-  //     (prevForms) =>
-  //       (prevForms = {
-  //         ...prevForms,
-  //         authorFullName: value,
-  //       }),
-  //   );
-  // };
+  const handleTitleChange = (value: string) => updateField("title", value);
 
-  // const handleTextChange = (value: string) => {
-  //   setForms(
-  //     (prevForms) =>
-  //       (prevForms = {
-  //         ...prevForms,
-  //         title: value,
-  //       }),
-  //   );
-  // };
+  const handleDescChange = (value: string) => updateField("description", value);
 
-  // const handleSaveForm = () => {
-  //   const newIdea = {
-  //     title: idea.title,
-  //     likeReactionsCount: idea.likeReactionsCount,
-  //     dislikeReactionsCount: idea.dislikeReactionsCount,
-  //     status: idea.status,
-  //     authorFullName: idea.authorFullName,
-  //   };
-  //   toggleModal(!showModal);
-  //   toggleSidebar(!showSidebar);
-  //   toggleReactions(!showReactions);
-  //   discussions.push(newIdea);
-  //   localStorage.setItem("discussions", JSON.stringify(discussions));
-  // };
+  const createIdeaMutation = useMutation({
+    mutationFn: createIdea,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["discussions"] });
+      handleToggleModal();
+      setForms({
+        title: "",
+        description: "",
+      });
+      alert("Идея создана!");
+    },
+    onError: (error) => {
+      console.error("Failed to create meeting:", error);
+      alert("Ошибка при создании встречи");
+    },
+  });
+
+  const handleSaveForm = () => {
+    createIdeaMutation.mutate(idea);
+  };
 
   return (
     <>
@@ -123,23 +133,29 @@ function DiscussionPage() {
         <div className={styles["modal-title"]}>Добавление идеи</div>
         <div className={styles.modal_columns}>
           <div className={styles["modal-group"]}>
-            <div>ФИО</div>
+            <div>Название идеи</div>
             <Input
-              placeholder="Введите ФИО"
+              placeholder="Введите название идеи"
               className={styles.add_input}
-              // onChange={(e) => handleAuthorChange(e.target.value)}
+              onChange={(e) => handleTitleChange(e.target.value)}
+              value={idea.title}
             ></Input>
           </div>
           <div className={styles["modal-group"]}>
             <div>Описание идеи</div>
             <textarea
               className={styles.add_input_2}
-              // onChange={(e) => handleTextChange(e.target.value)}
+              onChange={(e) => handleDescChange(e.target.value)}
+              value={idea.description}
             ></textarea>
           </div>
-          {/* <Button onClick={() => handleSaveForm()} className={styles.save_btn}>
-            Сохранить
-          </Button> */}
+          <Button
+            onClick={handleSaveForm}
+            className={styles.save_btn}
+            disabled={createIdeaMutation.isPending}
+          >
+            {createIdeaMutation.isPending ? "Сохранение..." : "Сохранить"}
+          </Button>
         </div>
       </Modal>
       <div className={styles.wrapper}>
@@ -210,6 +226,8 @@ function DiscussionPage() {
                 author={discussion.authorFullName}
                 title={discussion.title}
                 showReactions={showReactions}
+                id={discussion.id}
+                hideBtn={false}
               />
             ))}
           </div>
