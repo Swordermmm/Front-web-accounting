@@ -21,12 +21,12 @@ import "./App.css";
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
-      console.error("❌ Глобальная ошибка загрузки данных:", error);
+      console.error("Глобальная ошибка загрузки данных:", error);
     },
   }),
   mutationCache: new MutationCache({
     onError: (error) => {
-      console.error("❌ Глобальная ошибка мутации (отправки):", error);
+      console.error("Глобальная ошибка мутации (отправки):", error);
     },
   }),
   defaultOptions: {

@@ -14,8 +14,6 @@ import teamsIcon from "../../assets/teams_icon.svg";
 
 import type { Day, Week } from "../../types";
 
-// Константы
-
 const DAYS_OF_WEEK = [
   { value: 1, label: "пн" },
   { value: 2, label: "вт" },
@@ -28,8 +26,6 @@ const REPEAT_TYPES = [
   { value: 1, label: "Без повторений" },
   { value: 2, label: "Каждую неделю" },
 ];
-
-// Типы
 
 export interface Team {
   id: string;
@@ -49,8 +45,6 @@ export interface MeetingForm {
   repeatType: number;
   occurrencesCount: number;
 }
-
-// API функции
 
 const fetchCalendar = async (week: Week) => {
   const formatDate = (date: Date) => {
@@ -114,11 +108,48 @@ const createMeeting = async (meeting: MeetingForm) => {
     },
   });
 
-  if (!response.ok) throw new Error("Ошибка создания встречи");
-  return response.json();
-};
+  const filterMeetingsByWeek = (days: Day[], week: Week): Day[] => {
+    const weekStart = new Date(week.start);
+    const weekEnd = new Date(week.end);
 
-// Вспомогательные функции
+    // Устанавливаем время на начало и конец дня
+    weekStart.setHours(0, 0, 0, 0);
+    weekEnd.setHours(23, 59, 59, 999);
+
+    return days
+      .filter((day: Day) => {
+        const dayDate = new Date(day.date);
+        dayDate.setHours(0, 0, 0, 0);
+        // Оставляем только дни текущей недели
+        return dayDate >= weekStart && dayDate <= weekEnd;
+      })
+      .map((day: Day) => {
+        // Фильтруем встречи внутри дня
+        const filteredMeetings = (day.meetings || []).filter((meeting: any) => {
+          const meetingDate = new Date(meeting.startAt);
+          return meetingDate >= weekStart && meetingDate <= weekEnd;
+        });
+
+        // ✅ Дедупликация по id
+        const uniqueMeetings = Array.from(
+          new Map(filteredMeetings.map((m: any) => [m.id, m])).values(),
+        );
+
+        return {
+          ...day,
+          meetings: uniqueMeetings,
+        };
+      });
+  };
+
+  if (!response.ok) throw new Error("Ошибка создания встречи");
+
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    return await response.json();
+  }
+  return null;
+};
 
 const getCurrentWeekRange = (): Week => {
   const today = new Date();
@@ -196,7 +227,41 @@ const CalendarPage: FC = () => {
     },
   });
 
-  const calendar: Day[] = calendarData?.days || [];
+  const filterMeetingsByWeek = (days: Day[], week: Week): Day[] => {
+    const weekStart = new Date(week.start);
+    const weekEnd = new Date(week.end);
+
+    weekStart.setHours(0, 0, 0, 0);
+    weekEnd.setHours(23, 59, 59, 999);
+
+    return days
+      .filter((day: Day) => {
+        const dayDate = new Date(day.date);
+        dayDate.setHours(0, 0, 0, 0);
+        return dayDate >= weekStart && dayDate <= weekEnd;
+      })
+      .map((day: Day) => {
+        const filteredMeetings = (day.meetings || []).filter((meeting: any) => {
+          const meetingDate = new Date(meeting.startAt);
+          return meetingDate >= weekStart && meetingDate <= weekEnd;
+        });
+
+        const uniqueMeetings = Array.from(
+          new Map(filteredMeetings.map((m: any) => [m.id, m])).values(),
+        );
+
+        return {
+          ...day,
+          meetings: uniqueMeetings,
+        };
+      });
+  };
+
+  const calendar: Day[] = useMemo(() => {
+    const days = calendarData?.days || [];
+    return filterMeetingsByWeek(days, week);
+  }, [calendarData, week]);
+
   const teams: Team[] = teamsData?.items || [];
 
   const filteredTeams = useMemo(() => {
@@ -231,16 +296,12 @@ const CalendarPage: FC = () => {
 
   const handleDescChange = (value: string) =>
     updateMeetingField("description", value);
-
   const handlePlaceChange = (value: string) =>
     updateMeetingField("location", value);
-
   const handleOftenChange = (value: number) =>
     updateMeetingField("repeatType", value);
-
   const handleAmountChange = (value: number) =>
     updateMeetingField("occurrencesCount", value);
-
   const handleDaysOfWeekChange = (value: string) =>
     updateMeetingField("daysOfWeek", [Number(value)]);
 
@@ -254,40 +315,64 @@ const CalendarPage: FC = () => {
   };
 
   const handleStartChange = (value: string) => {
-    const date = new Date(
-      value + meeting.startAt.slice(10, meeting.startAt.length),
-    );
+    const timePart = meeting.startAt
+      ? meeting.startAt.slice(10)
+      : "T10:00:00.000Z";
+    const date = new Date(value + timePart);
+
+    const endDate = new Date(date.getTime() + 3600000);
+
     updateMeetingField("startAt", date.toISOString());
+    updateMeetingField("endAt", endDate.toISOString());
   };
 
   const handleEndChange = (value: string) => {
-    const date = new Date(
-      value + meeting.startAt.slice(10, meeting.endAt.length),
-    );
+    const timePart = meeting.endAt ? meeting.endAt.slice(10) : "T11:00:00.000Z";
+    const date = new Date(value + timePart);
 
-    const enddate = new Date(date.getTime() + 3600000);
-    updateMeetingField("endAt", enddate.toISOString());
+    updateMeetingField("endAt", date.toISOString());
   };
 
   const handleStartTimeChange = (value: string) => {
+    if (!meeting.startAt) {
+      const now = new Date();
+      const [hours, minutes] = value.split(":").map(Number);
+      now.setHours(hours, minutes, 0, 0);
+
+      const endDate = new Date(now.getTime() + 3600000);
+
+      updateMeetingField("startAt", now.toISOString());
+      updateMeetingField("endAt", endDate.toISOString());
+      return;
+    }
+
     const [hours, minutes] = value.split(":").map(Number);
     const date = new Date(meeting.startAt);
     date.setHours(hours, minutes, 0, 0);
 
-    const enddate = new Date(date.getTime());
-    updateMeetingField("startAt", date.toISOString());
-    updateMeetingField("endAt", enddate.toISOString());
+    const endDate = new Date(date.getTime() + 3600000);
 
-    if (meeting.repeatType === 1) {
-      const enddate = new Date(week.end.getTime() + 3600000);
-      updateMeetingField("endAt", enddate.toISOString());
-    }
+    updateMeetingField("startAt", date.toISOString());
+    updateMeetingField("endAt", endDate.toISOString());
   };
 
   const handlePostMeeting = () => {
-    updateMeetingField("startAt", meeting.startAt.slice(0, -1));
-    updateMeetingField("endAt", meeting.endAt.slice(0, -1));
-    createMeetingMutation.mutate(meeting);
+    if (!meeting.startAt || !meeting.endAt) {
+      alert("Укажите дату и время встречи");
+      return;
+    }
+
+    const meetingToSend: MeetingForm = {
+      ...meeting,
+      startAt: meeting.startAt.endsWith("Z")
+        ? meeting.startAt.slice(0, -1)
+        : meeting.startAt,
+      endAt: meeting.endAt.endsWith("Z")
+        ? meeting.endAt.slice(0, -1)
+        : meeting.endAt,
+    };
+
+    createMeetingMutation.mutate(meetingToSend);
   };
 
   return (
@@ -344,7 +429,7 @@ const CalendarPage: FC = () => {
               <div className={styles["modal-group"]}>
                 <div>Начальная дата</div>
                 <Input
-                  value={meeting.startAt.slice(0, 10)}
+                  value={meeting.startAt ? meeting.startAt.slice(0, 10) : ""}
                   className={styles.add_input}
                   type="date"
                   onChange={(e) => handleStartChange(e.target.value)}
@@ -371,7 +456,7 @@ const CalendarPage: FC = () => {
                 <div>Конечная дата</div>
                 <Input
                   onChange={(e) => handleEndChange(e.target.value)}
-                  value={meeting.endAt.slice(0, 10)}
+                  value={meeting.endAt ? meeting.endAt.slice(0, 10) : ""}
                   className={styles.add_input}
                   type="date"
                   disabled={meeting.repeatType === 1}
@@ -386,7 +471,11 @@ const CalendarPage: FC = () => {
                   className={styles.add_input}
                   type="time"
                   onChange={(e) => handleStartTimeChange(e.target.value)}
-                  value={new Date(meeting.startAt).toTimeString().slice(0, 5)}
+                  value={
+                    meeting.startAt
+                      ? new Date(meeting.startAt).toTimeString().slice(0, 5)
+                      : ""
+                  }
                 />
               </div>
               <div className={styles["modal-group"]}>
@@ -399,10 +488,15 @@ const CalendarPage: FC = () => {
                         className={styles.btn_dayOfWeek_hidden}
                         value={day.value}
                         name="day"
+                        checked={meeting.daysOfWeek.includes(day.value)}
                         onChange={(e) => handleDaysOfWeekChange(e.target.value)}
                       />
                       <span
-                        className={`${styles.btn_dayOfWeek} ${meeting.daysOfWeek.includes(day.value) ? styles.btn_dayOfWeek_active : ""}`}
+                        className={`${styles.btn_dayOfWeek} ${
+                          meeting.daysOfWeek.includes(day.value)
+                            ? styles.btn_dayOfWeek_active
+                            : ""
+                        }`}
                       >
                         {day.label}
                       </span>
@@ -418,6 +512,7 @@ const CalendarPage: FC = () => {
                   className={styles.add_input}
                   value={meeting.occurrencesCount || ""}
                   onChange={(e) => handleAmountChange(Number(e.target.value))}
+                  disabled={meeting.repeatType === 1}
                 />
               </div>
             </div>

@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, Input } from "../../components/UI";
 import styles from "./TeamDetailPage.module.scss";
@@ -41,13 +41,90 @@ interface TeamDetail {
   project: Project;
   members: TeamMember[];
   iterations: Iteration[];
+  fileUrl?: string | null;
 }
+
+const uploadTeamFile = async ({
+  teamId,
+  file,
+}: {
+  teamId: string;
+  file: File;
+}) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(
+    `https://galacat.xyz/alpha-api/api/files/team/${teamId}/upload`,
+    {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+      headers: {
+        accept: "*/*",
+      },
+    },
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "Неизвестная ошибка");
+    throw new Error(errorText || "Ошибка загрузки файла");
+  }
+
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    return await response.json();
+  }
+  return null;
+};
+
+const downloadTeamFile = async ({
+  teamId,
+  fileUrl,
+}: {
+  teamId: string;
+  fileUrl: string;
+}) => {
+  const fileName = fileUrl.split("/").pop() || fileUrl;
+
+  const response = await fetch(
+    `https://galacat.xyz/alpha-api/api/files/team/${teamId}/${fileName}/download`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        accept: "*/*",
+      },
+    },
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "Неизвестная ошибка");
+    throw new Error(errorText || "Ошибка скачивания файла");
+  }
+
+  const blob = await response.blob();
+
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+
+  return { success: true };
+};
 
 const TeamDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedIteration, setSelectedIteration] = useState<string>("");
   const [evaluations, setEvaluations] = useState<
     Record<string, { score: string; comment: string }>
@@ -103,6 +180,80 @@ const TeamDetailPage = () => {
     },
   });
 
+  const uploadFileMutation = useMutation({
+    mutationFn: uploadTeamFile,
+    onSuccess: () => {
+      alert("Файл успешно загружен!");
+      setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    },
+    onError: (error: Error) => {
+      console.error("Failed to upload file:", error);
+      alert(`Ошибка при загрузке файла: ${error.message}`);
+    },
+  });
+
+  const downloadFileMutation = useMutation({
+    mutationFn: downloadTeamFile,
+    onSuccess: () => {
+      alert("Файл успешно скачан!");
+    },
+    onError: (error: Error) => {
+      console.error("Failed to download file:", error);
+      alert(`Ошибка при скачивании файла: ${error.message}`);
+    },
+  });
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (!file.name.endsWith(".zip")) {
+        alert("Пожалуйста, выберите ZIP-файл");
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
+
+  const handleUploadFile = () => {
+    if (!selectedFile) {
+      alert("Пожалуйста, выберите файл");
+      return;
+    }
+
+    if (!team?.id) {
+      alert("ID команды не найден");
+      return;
+    }
+
+    uploadFileMutation.mutate({
+      teamId: team.id,
+      file: selectedFile,
+    });
+  };
+
+  const handleDownloadFile = () => {
+    if (!team?.id) {
+      alert("ID команды не найден");
+      return;
+    }
+
+    if (!team.fileUrl) {
+      alert("Файл не найден");
+      return;
+    }
+
+    downloadFileMutation.mutate({
+      teamId: team.id,
+      fileUrl: team.fileUrl,
+    });
+  };
+
   const handleEvaluationChange = (
     studentId: string,
     field: "score" | "comment",
@@ -119,37 +270,6 @@ const TeamDetailPage = () => {
 
   const handleCriteriaSave = () => {
     setIsEditingCriteria(false);
-  };
-
-  const handleSaveEvaluations = async () => {
-    try {
-      const evaluationsToSave = Object.entries(evaluations).map(
-        ([studentId, data]) => ({
-          studentId,
-          score: parseInt(data.score) || 0,
-          comment: data.comment,
-        }),
-      );
-
-      const response = await fetch(
-        `https://galacat.xyz/alpha-api/api/team/${id}/evaluations`,
-        {
-          method: "POST",
-          body: JSON.stringify({ evaluations: evaluationsToSave }),
-          credentials: "include",
-          headers: {
-            accept: "*/*",
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      if (!response.ok) throw new Error("Ошибка сохранения оценок");
-      alert("Оценки сохранены!");
-    } catch (error) {
-      console.error("Error saving evaluations:", error);
-      alert("Ошибка при сохранении оценок");
-    }
   };
 
   if (isLoading) {
@@ -246,15 +366,45 @@ const TeamDetailPage = () => {
               </div>
             </div>
           </div>
-          <Button
-            className={styles.redBtn}
-            onClick={() => completeProjectMutation.mutate()}
-            disabled={completeProjectMutation.isPending}
-          >
-            {completeProjectMutation.isPending
-              ? "Завершение..."
-              : "Завершить проект"}
-          </Button>
+          <div className={styles.iterationFlex}>
+            <Button
+              className={styles.redBtn}
+              onClick={() => completeProjectMutation.mutate()}
+              disabled={completeProjectMutation.isPending}
+            >
+              {completeProjectMutation.isPending
+                ? "Завершение..."
+                : "Завершить проект"}
+            </Button>
+            <Button
+              className={styles.redBtn}
+              onClick={handleUploadFile}
+              disabled={!selectedFile || uploadFileMutation.isPending}
+            >
+              Загрузить итоги
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".zip"
+              onChange={handleFileSelect}
+              className={styles.fileInput}
+              id="file-upload"
+            />
+            {team.fileUrl && (
+              <Button
+                className={styles.redBtn}
+                onClick={handleDownloadFile}
+                disabled={downloadFileMutation.isPending}
+              >
+                {downloadFileMutation.isPending ? (
+                  "Скачивание..."
+                ) : (
+                  <>Скачать файл</>
+                )}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
       <hr></hr>

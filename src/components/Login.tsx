@@ -27,6 +27,7 @@ const Login: FC = () => {
 
   const [message, setMessage] = useState<string>("");
   const [sso, setSSO] = useState<boolean>(false);
+  const [showEmail, setShowEmail] = useState<boolean>(true);
 
   const handleLogin = async (formValue: {
     email: string;
@@ -60,9 +61,11 @@ const Login: FC = () => {
     if (newSSOState) {
       setFieldValue("email", "admin@email.com");
       setFieldValue("password", "gibberish");
+      setShowEmail(false);
     } else {
       setFieldValue("email", "");
       setFieldValue("password", "");
+      setShowEmail(true);
     }
   };
 
@@ -114,7 +117,7 @@ const Login: FC = () => {
                     <Input
                       id="email"
                       name="email"
-                      type="text"
+                      type={sso && !showEmail ? "password" : "text"}
                       value={values.email}
                       onChange={handleChange}
                       onBlur={handleBlur}
@@ -122,6 +125,7 @@ const Login: FC = () => {
                         errors.email && touched.email ? styles.input_error : ""
                       }`}
                       placeholder="Введите email"
+                      disabled={sso}
                     />
                     {errors.email && touched.email && (
                       <div className={styles.error_message}>{errors.email}</div>

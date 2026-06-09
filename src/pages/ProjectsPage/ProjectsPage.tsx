@@ -31,7 +31,7 @@ export interface Project {
   mvp?: string;
 }
 
-interface ProjectForm {
+export interface ProjectForm {
   title: string;
   shortTitle: string;
   description: string;

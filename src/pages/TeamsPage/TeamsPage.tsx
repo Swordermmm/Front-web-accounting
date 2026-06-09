@@ -12,6 +12,7 @@ import {
   ComboBox,
 } from "../../components/UI";
 import type { Student } from "../StudentsPage/StudentsPage";
+import type { Curator } from "../CuratorPage/CuratorPage";
 import { useNavigate } from "react-router-dom";
 
 import styles from "./TeamsPage.module.scss";
@@ -28,11 +29,12 @@ interface TeamStudent extends Student {
   type?: "new" | "old";
 }
 
-interface Team {
+export interface Team {
   name: string;
   projectId: string;
   studentProfileIds: string[];
   skills: string;
+  curatorId: string;
 }
 
 const fetchTeams = async (body: any) => {
@@ -45,6 +47,21 @@ const fetchTeams = async (body: any) => {
       headers: { accept: "*/*", "Content-Type": "application/json" },
     },
   );
+  if (!response.ok) throw new Error("Ошибка загрузки команд");
+  return response.json();
+};
+
+const fetchCurators = async (body: any) => {
+  const response = await fetch(
+    "https://galacat.xyz/alpha-api/api/student/curator/list",
+    {
+      method: "POST",
+      body: JSON.stringify(body),
+      credentials: "include",
+      headers: { accept: "*/*", "Content-Type": "application/json" },
+    },
+  );
+
   if (!response.ok) throw new Error("Ошибка загрузки команд");
   return response.json();
 };
@@ -82,7 +99,7 @@ const fetchStudentsByName = async (name: string) => {
   return response.json();
 };
 
-const createStudentApi = async (student: TeamStudent) => {
+const createStudent = async (student: TeamStudent) => {
   const response = await fetch("https://galacat.xyz/alpha-api/api/student", {
     method: "POST",
     body: JSON.stringify(student),
@@ -93,7 +110,8 @@ const createStudentApi = async (student: TeamStudent) => {
   return response.json();
 };
 
-const createTeamApi = async (team: Team) => {
+const createTeam = async (team: Team) => {
+  console.log(team);
   const response = await fetch(
     "https://galacat.xyz/alpha-api/api/student/team",
     {
@@ -123,6 +141,7 @@ const TeamsPage: FC = () => {
     projectId: "",
     studentProfileIds: [],
     skills: "",
+    curatorId: "",
   });
 
   const baseplate: TeamStudent = { fullName: "", email: "", roleInTeam: "" };
@@ -132,14 +151,15 @@ const TeamsPage: FC = () => {
   const [studentQuery, setStudentQuery] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
+  const [curatorQuery, setCuratorQuery] = useState("");
+  const [selectedCurator, setSelectedCurator] = useState<Curator | null>(null);
+
   const [selectedProject, setSelectedProject] = useState<any | null>(null);
   const [projectQuery, setProjectQuery] = useState<string>("");
 
   const debouncedProjectQuery = useDebounce(projectQuery, 500);
-
-  const debouncedQuery = useDebounce(studentQuery, 500);
-
-  // Локальная фильтрация проектов
+  const debouncedQuery = useDebounce(curatorQuery, 500);
+  const debouncedCuratorQuery = useDebounce(studentQuery, 500);
 
   const { data: studentsData, isPending: isStudentsLoading } = useQuery({
     queryKey: ["students-search", debouncedQuery],
@@ -168,8 +188,23 @@ const TeamsPage: FC = () => {
     queryFn: fetchProjects,
   });
 
+  const { data: curatorsData, isPending: isCuratorsLoading } = useQuery({
+    queryKey: ["curators"],
+    queryFn: fetchCurators,
+  });
+
   const teams = teamsData?.items || [];
   const projects = projectsData?.items || [];
+  const curators = curatorsData?.items || [];
+
+  const filteredCurators = useMemo(() => {
+    if (!debouncedCuratorQuery) return curators;
+    return curators.filter((curator: any) =>
+      curator.fullName
+        .toLowerCase()
+        .includes(debouncedProjectQuery.toLowerCase()),
+    );
+  }, [curators, debouncedCuratorQuery]);
 
   const filteredProjects = useMemo(() => {
     if (!debouncedProjectQuery) return projects;
@@ -179,12 +214,18 @@ const TeamsPage: FC = () => {
   }, [projects, debouncedProjectQuery]);
 
   const createTeamMutation = useMutation({
-    mutationFn: createTeamApi,
+    mutationFn: createTeam,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teams"] });
 
       handleToggleModal();
-      setTeam({ name: "", projectId: "", studentProfileIds: [], skills: "" });
+      setTeam({
+        name: "",
+        projectId: "",
+        studentProfileIds: [],
+        skills: "",
+        curatorId: "",
+      });
       setStudents([]);
       setStudent(baseplate);
     },
@@ -217,6 +258,16 @@ const TeamsPage: FC = () => {
       setTeam((prev) => ({ ...prev, projectId: "" }));
     }
   };
+
+  const handleCuratorChange = (curator: any | null) => {
+    setSelectedCurator(curator);
+    if (curator) {
+      setTeam((prev) => ({ ...prev, curatorId: curator.id }));
+    } else {
+      setTeam((prev) => ({ ...prev, curator: "" }));
+    }
+  };
+
   const handleSkillsChange = (value: string) =>
     setTeam((prev) => ({ ...prev, skills: value }));
 
@@ -263,6 +314,7 @@ const TeamsPage: FC = () => {
 
     setSelectedProject(null);
     setProjectQuery("");
+    setCuratorQuery("");
   };
 
   const handleCreateTeam = async () => {
@@ -271,7 +323,7 @@ const TeamsPage: FC = () => {
 
       for (const stud of studentsInTeam) {
         if (stud.type === "new") {
-          const res = await createStudentApi(stud);
+          const res = await createStudent(stud);
           if (res?.id) studentIds.push(res.id);
         } else {
           const res = await fetchStudentsByName(stud.fullName);
@@ -313,15 +365,26 @@ const TeamsPage: FC = () => {
             value={selectedProject}
             onChange={handleProjectChange}
             options={filteredProjects}
-            onQueryChange={setProjectQuery}
+            onQueryChange={setCuratorQuery}
             displayValue={(project) => project?.title || ""}
             isLoading={isProjectLoading}
             placeholder="Введите название проекта"
             className={styles.add_input}
           />
         </div>
-
         <div className={styles["modal-group"]}>
+          <div>Добавление куратора</div>
+          <ComboBox
+            value={selectedCurator}
+            onChange={handleCuratorChange}
+            options={filteredCurators}
+            onQueryChange={setCuratorQuery}
+            displayValue={(curator) => curator?.fullName || ""}
+            isLoading={isCuratorsLoading}
+            placeholder="Введите ФИО куратора"
+            className={styles.add_input}
+          />
+          <div className={styles["modal-group"]}></div>
           <div>Добавить стек</div>
           <Input
             placeholder="Введите стек"
