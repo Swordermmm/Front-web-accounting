@@ -102,12 +102,29 @@ button {
     background-color: rgba(0, 0, 0, 0);
 }
 
+.btn_close {
+    margin: 0;
+    margin-top: 8px;
+    width: 0;
+    height: 0;
+    background-color: rgba(0, 0, 0, 0);
+}
+
 .btn_create img {
     margin: 0;
     margin-top: 10px;
 }
 
+.btn_close img {
+    margin: 0;
+    margin-left: 40px;
+}
+
 .btn_create:hover {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.btn_close:hover {
     background-color: rgba(0, 0, 0, 0);
 }
 
@@ -134,4 +151,8 @@ button {
 
 .btn_toggle:hover {
     background-color: #545454;
+}
+
+.black {
+    color: black;
 }

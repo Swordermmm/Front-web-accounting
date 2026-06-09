@@ -76,7 +76,7 @@ const Login: FC = () => {
           <img src={logo} alt="Site Logo" />
         </header>
 
-        <div className="col-md-12">
+        <div>
           <div className="card card-container">
             <Formik
               initialValues={initialValues}
@@ -164,13 +164,11 @@ const Login: FC = () => {
                     </Button>
                   </div>
 
-                  {/* {message && (
+                  {message && (
                     <div className="form-group">
-                      <div className="alert alert-danger" role="alert">
-                        {message}
-                      </div>
+                      <div role="alert">{message}</div>
                     </div>
-                  )} */}
+                  )}
                 </Form>
               )}
             </Formik>

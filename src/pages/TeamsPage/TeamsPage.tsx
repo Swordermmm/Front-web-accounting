@@ -24,6 +24,7 @@ import search from "../../assets/search_icon.svg";
 import students from "../../assets/students_icon.svg";
 import teamsIcon from "../../assets/teams_icon.svg";
 import enter from "../../assets/enter.svg";
+import close from "../../assets/close_icon.svg";
 
 interface TeamStudent extends Student {
   type?: "new" | "old";
@@ -158,13 +159,13 @@ const TeamsPage: FC = () => {
   const [projectQuery, setProjectQuery] = useState<string>("");
 
   const debouncedProjectQuery = useDebounce(projectQuery, 500);
-  const debouncedQuery = useDebounce(curatorQuery, 500);
-  const debouncedCuratorQuery = useDebounce(studentQuery, 500);
+  const debouncedCuratorQuery = useDebounce(curatorQuery, 500);
+  const debouncedStudentQuery = useDebounce(studentQuery, 500);
 
   const { data: studentsData, isPending: isStudentsLoading } = useQuery({
-    queryKey: ["students-search", debouncedQuery],
-    queryFn: () => fetchStudentsByName(debouncedQuery),
-    enabled: debouncedQuery.length > 0,
+    queryKey: ["students-search", debouncedStudentQuery],
+    queryFn: () => fetchStudentsByName(debouncedStudentQuery),
+    enabled: debouncedStudentQuery.length > 0,
     placeholderData: (previousData) => previousData,
   });
 
@@ -202,7 +203,7 @@ const TeamsPage: FC = () => {
     return curators.filter((curator: any) =>
       curator.fullName
         .toLowerCase()
-        .includes(debouncedProjectQuery.toLowerCase()),
+        .includes(debouncedCuratorQuery.toLowerCase()),
     );
   }, [curators, debouncedCuratorQuery]);
 
@@ -234,6 +235,10 @@ const TeamsPage: FC = () => {
       alert("Ошибка при создании команды");
     },
   });
+
+  const handleRemoveLastStudent = () => {
+    setStudents((prev) => prev.slice(0, -1));
+  };
 
   const handleToggleModal = () => {
     toggleModal(!showModal);
@@ -294,6 +299,7 @@ const TeamsPage: FC = () => {
     setStudents((prev) => [...prev, newStudent]);
     setStudent(baseplate);
     setSelectedStudent(null);
+    console.log(student.roleInTeam);
   };
 
   const handleAddSelectedStudent = () => {
@@ -308,13 +314,10 @@ const TeamsPage: FC = () => {
     };
 
     handleStudentEmail("");
+    setStudent((prev) => ({ ...prev, roleInTeam: "" }));
     setStudents((prev) => [...prev, newMember]);
     setSelectedStudent(null);
     setStudentQuery("");
-
-    setSelectedProject(null);
-    setProjectQuery("");
-    setCuratorQuery("");
   };
 
   const handleCreateTeam = async () => {
@@ -365,7 +368,7 @@ const TeamsPage: FC = () => {
             value={selectedProject}
             onChange={handleProjectChange}
             options={filteredProjects}
-            onQueryChange={setCuratorQuery}
+            onQueryChange={setProjectQuery}
             displayValue={(project) => project?.title || ""}
             isLoading={isProjectLoading}
             placeholder="Введите название проекта"
@@ -384,7 +387,8 @@ const TeamsPage: FC = () => {
             placeholder="Введите ФИО куратора"
             className={styles.add_input}
           />
-          <div className={styles["modal-group"]}></div>
+        </div>
+        <div className={styles["modal-group"]}>
           <div>Добавить стек</div>
           <Input
             placeholder="Введите стек"
@@ -421,6 +425,12 @@ const TeamsPage: FC = () => {
               >
                 <img src={enter} alt="add" />
               </Button>
+              <Button
+                onClick={() => handleRemoveLastStudent()}
+                className={styles.btn_close}
+              >
+                <img src={close} alt="delete" />
+              </Button>
             </div>
           ) : (
             <div className={styles["flex-group"]}>
@@ -440,6 +450,12 @@ const TeamsPage: FC = () => {
                 disabled={!selectedStudent}
               >
                 <img src={enter} alt="add" />
+              </Button>
+              <Button
+                onClick={() => handleRemoveLastStudent()}
+                className={styles.btn_close}
+              >
+                <img src={close} alt="delete" />
               </Button>
             </div>
           )}

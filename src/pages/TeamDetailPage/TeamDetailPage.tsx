@@ -280,7 +280,10 @@ const TeamDetailPage = () => {
     return (
       <div className={styles.error}>
         <p>Команда не найдена</p>
-        <button className={styles.redBtn} onClick={() => navigate("/teams")}>
+        <button
+          className={`${styles.redBtn} ${styles.black}`}
+          onClick={() => navigate("/teams")}
+        >
           Назад
         </button>
       </div>
