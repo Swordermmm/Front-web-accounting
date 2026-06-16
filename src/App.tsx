@@ -6,6 +6,7 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 import Login from "./components/Login";
+import Register from "./components/Register";
 import ProjectsPage from "./pages/ProjectsPage/ProjectsPage";
 import DiscussionPage from "./pages/DiscussionPage/DiscussionPage";
 import TeamsPage from "./pages/TeamsPage/TeamsPage";
@@ -41,6 +42,7 @@ export const App = () => {
     <QueryClientProvider client={queryClient}>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/discussion" element={<DiscussionPage />} />
         <Route path="/idea/:id" element={<DiscussionCommentsPage />} />

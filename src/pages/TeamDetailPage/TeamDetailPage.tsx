@@ -386,14 +386,18 @@ const TeamDetailPage = () => {
             >
               Загрузить итоги
             </Button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".zip"
-              onChange={handleFileSelect}
-              className={styles.fileInput}
-              id="file-upload"
-            />
+            <div className={styles.fileInput}>
+              <label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".zip"
+                  onChange={handleFileSelect}
+                  id="file-upload"
+                />
+                Загрузить файл
+              </label>
+            </div>
             {team.fileUrl && (
               <Button
                 className={styles.redBtn}

@@ -300,3 +300,31 @@ tbody {
     border-color: #999;
   }
 }
+
+.fileInput {
+  margin-top: 10px;  
+  padding: 2px 2px;
+  border: 1px solid #000000;
+  border-radius: 10px;
+  line-height: 1.6;
+  font-family: inherit;
+  background: #ECEAEA;
+  resize: vertical;
+  color: #545454;
+  resize: none;
+  display: flex;
+  justify-content: center;
+
+  &:focus {
+    outline: none;
+    border-color: #999;
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+
+  label {
+    font-size: 14px;
+  }
+}

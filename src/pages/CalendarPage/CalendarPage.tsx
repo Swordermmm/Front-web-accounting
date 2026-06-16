@@ -108,42 +108,7 @@ const createMeeting = async (meeting: MeetingForm) => {
     },
   });
 
-  const filterMeetingsByWeek = (days: Day[], week: Week): Day[] => {
-    const weekStart = new Date(week.start);
-    const weekEnd = new Date(week.end);
-
-    // Устанавливаем время на начало и конец дня
-    weekStart.setHours(0, 0, 0, 0);
-    weekEnd.setHours(23, 59, 59, 999);
-
-    return days
-      .filter((day: Day) => {
-        const dayDate = new Date(day.date);
-        dayDate.setHours(0, 0, 0, 0);
-        // Оставляем только дни текущей недели
-        return dayDate >= weekStart && dayDate <= weekEnd;
-      })
-      .map((day: Day) => {
-        // Фильтруем встречи внутри дня
-        const filteredMeetings = (day.meetings || []).filter((meeting: any) => {
-          const meetingDate = new Date(meeting.startAt);
-          return meetingDate >= weekStart && meetingDate <= weekEnd;
-        });
-
-        // ✅ Дедупликация по id
-        const uniqueMeetings = Array.from(
-          new Map(filteredMeetings.map((m: any) => [m.id, m])).values(),
-        );
-
-        return {
-          ...day,
-          meetings: uniqueMeetings,
-        };
-      });
-  };
-
   if (!response.ok) throw new Error("Ошибка создания встречи");
-
   const contentType = response.headers.get("content-type");
   if (contentType && contentType.includes("application/json")) {
     return await response.json();
@@ -185,6 +150,32 @@ const initialMeetingForm: MeetingForm = {
   daysOfWeek: [1],
   repeatType: 1,
   occurrencesCount: 1,
+};
+
+const calculateOccurrencesCount = (
+  startAt: string,
+  endAt: string,
+  repeatType: number,
+): number => {
+  if (repeatType === 1) {
+    return 1;
+  }
+
+  if (!startAt || !endAt) {
+    return 1;
+  }
+
+  const startDate = new Date(startAt);
+  const endDate = new Date(endAt);
+
+  if (endDate < startDate) {
+    return 1;
+  }
+
+  const diffTime = endDate.getTime() - startDate.getTime();
+  const diffWeeks = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 7));
+
+  return Math.max(1, diffWeeks);
 };
 
 const CalendarPage: FC = () => {
@@ -296,12 +287,20 @@ const CalendarPage: FC = () => {
 
   const handleDescChange = (value: string) =>
     updateMeetingField("description", value);
+
   const handlePlaceChange = (value: string) =>
     updateMeetingField("location", value);
-  const handleOftenChange = (value: number) =>
+
+  const handleOftenChange = (value: number) => {
     updateMeetingField("repeatType", value);
-  const handleAmountChange = (value: number) =>
-    updateMeetingField("occurrencesCount", value);
+    const occurrencesCount = calculateOccurrencesCount(
+      meeting.startAt,
+      meeting.endAt,
+      value,
+    );
+    updateMeetingField("occurrencesCount", occurrencesCount);
+  };
+
   const handleDaysOfWeekChange = (value: string) =>
     updateMeetingField("daysOfWeek", [Number(value)]);
 
@@ -315,22 +314,36 @@ const CalendarPage: FC = () => {
   };
 
   const handleStartChange = (value: string) => {
-    const timePart = meeting.startAt
-      ? meeting.startAt.slice(10)
-      : "T10:00:00.000Z";
+    if (!meeting.startAt) return;
+    const timePart = meeting.startAt.slice(10);
     const date = new Date(value + timePart);
 
     const endDate = new Date(date.getTime() + 3600000);
+    console.log(value);
 
     updateMeetingField("startAt", date.toISOString());
     updateMeetingField("endAt", endDate.toISOString());
-  };
 
+    const occurrencesCount = calculateOccurrencesCount(
+      date.toISOString(),
+      endDate.toISOString(),
+      meeting.repeatType,
+    );
+    updateMeetingField("occurrencesCount", occurrencesCount);
+  };
   const handleEndChange = (value: string) => {
-    const timePart = meeting.endAt ? meeting.endAt.slice(10) : "T11:00:00.000Z";
+    if (!meeting.endAt) return;
+    const timePart = meeting.endAt.slice(10);
     const date = new Date(value + timePart);
 
     updateMeetingField("endAt", date.toISOString());
+
+    const occurrencesCount = calculateOccurrencesCount(
+      meeting.startAt,
+      date.toISOString(),
+      meeting.repeatType,
+    );
+    updateMeetingField("occurrencesCount", occurrencesCount);
   };
 
   const handleStartTimeChange = (value: string) => {
@@ -430,6 +443,7 @@ const CalendarPage: FC = () => {
                 <div>Начальная дата</div>
                 <Input
                   value={meeting.startAt ? meeting.startAt.slice(0, 10) : ""}
+                  disabled={meeting.startAt == ""}
                   className={styles.add_input}
                   type="date"
                   onChange={(e) => handleStartChange(e.target.value)}
@@ -506,14 +520,9 @@ const CalendarPage: FC = () => {
               </div>
               <div className={styles["modal-group"]}>
                 <div>Всего встреч</div>
-                <Input
-                  placeholder="Введите кол-во встреч"
-                  type="number"
-                  className={styles.add_input}
-                  value={meeting.occurrencesCount || ""}
-                  onChange={(e) => handleAmountChange(Number(e.target.value))}
-                  disabled={meeting.repeatType === 1}
-                />
+                <div className={styles.occurrencesCount}>
+                  {meeting.occurrencesCount || 1}
+                </div>
               </div>
             </div>
           </div>

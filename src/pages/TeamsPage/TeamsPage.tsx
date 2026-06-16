@@ -236,8 +236,14 @@ const TeamsPage: FC = () => {
     },
   });
 
-  const handleRemoveLastStudent = () => {
-    setStudents((prev) => prev.slice(0, -1));
+  const [showStudentsList, setShowStudentsList] = useState<boolean>(false);
+
+  const handleRemoveStudent = (index: number) => {
+    setStudents((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleToggleStudentsList = () => {
+    setShowStudentsList(!showStudentsList);
   };
 
   const handleToggleModal = () => {
@@ -404,7 +410,19 @@ const TeamsPage: FC = () => {
         </Button>
 
         <div className={styles["modal-group"]}>
-          <div>{studentsInTeam.length} участников</div>
+          <div className={styles["flex-group"]}>
+            {studentsInTeam.length} участников
+            {studentsInTeam.length > 0 && (
+              <Button
+                className={styles.viewListBtn}
+                onClick={handleToggleStudentsList}
+              >
+                Список
+                <img src={teamsIcon}></img>
+              </Button>
+            )}
+          </div>
+
           {studentToggle ? (
             <div className={styles["flex-group"]}>
               <Input
@@ -425,12 +443,6 @@ const TeamsPage: FC = () => {
               >
                 <img src={enter} alt="add" />
               </Button>
-              <Button
-                onClick={() => handleRemoveLastStudent()}
-                className={styles.btn_close}
-              >
-                <img src={close} alt="delete" />
-              </Button>
             </div>
           ) : (
             <div className={styles["flex-group"]}>
@@ -450,12 +462,6 @@ const TeamsPage: FC = () => {
                 disabled={!selectedStudent}
               >
                 <img src={enter} alt="add" />
-              </Button>
-              <Button
-                onClick={() => handleRemoveLastStudent()}
-                className={styles.btn_close}
-              >
-                <img src={close} alt="delete" />
               </Button>
             </div>
           )}
@@ -478,6 +484,78 @@ const TeamsPage: FC = () => {
           {createTeamMutation.isPending ? "Сохранение..." : "Сохранить"}
         </Button>
       </Modal>
+      {showStudentsList && (
+        <div
+          className={styles.studentsListOverlay}
+          onClick={handleToggleStudentsList}
+        >
+          <div
+            className={styles.studentsListModal}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.studentsListHeader}>
+              <h3 className={styles.studentsListTitle}>
+                Кол-во участников: {studentsInTeam.length}
+              </h3>
+              <Button
+                className={styles.closeListBtn}
+                onClick={handleToggleStudentsList}
+              >
+                ×
+              </Button>
+            </div>
+
+            <div className={styles.studentsListContent}>
+              {studentsInTeam.length > 0 ? (
+                studentsInTeam.map((student, index) => (
+                  <div key={index} className={styles.studentListItem}>
+                    <div className={styles.studentItemInfo}>
+                      <div className={styles.studentItemHeader}>
+                        <span className={styles.studentItemName}>
+                          {student.fullName}
+                        </span>
+                        <span className={styles.studentItemType}>
+                          {student.type === "new" ? "Новый" : "Существующий"}
+                        </span>
+                      </div>
+                      {student.email && (
+                        <div className={styles.studentItemEmail}>
+                          {student.email}
+                        </div>
+                      )}
+                      {student.roleInTeam && (
+                        <div className={styles.studentItemRole}>
+                          Роль: {student.roleInTeam}
+                        </div>
+                      )}
+                    </div>
+                    <Button
+                      className={styles.removeStudentBtn}
+                      onClick={() => handleRemoveStudent(index)}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                      </svg>
+                    </Button>
+                  </div>
+                ))
+              ) : (
+                <div className={styles.noStudents}>
+                  Нет добавленных участников
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className={styles.wrapper}>
         <Sidebar isOpen={showSidebar}>

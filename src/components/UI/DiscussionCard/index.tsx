@@ -49,6 +49,26 @@ export const DiscussionCard: FC<ContainerProps> = ({
     navigate(`/idea/${ideaId}`);
   };
 
+  const updateStatusProject = async (ideaId: string | undefined) => {
+    const response = await fetch(
+      `https://galacat.xyz/alpha-api/api/project/${ideaId}/status`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({
+          status: 1,
+        }),
+        credentials: "include",
+        headers: {
+          accept: "*/*",
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    if (!response.ok) throw new Error("Ошибка обновления");
+    alert("Идея принята!");
+    window.location.reload();
+  };
+
   return (
     <div className={classNames(className)} {...props}>
       <label>{author}</label>
@@ -80,6 +100,12 @@ export const DiscussionCard: FC<ContainerProps> = ({
             onClick={() => handleMeetingClick(id)}
           >
             Добавить комментарий
+          </Button>
+          <Button
+            className={styles.comment_btn}
+            onClick={() => updateStatusProject(id)}
+          >
+            Принять идею
           </Button>
         </div>
       </div>
